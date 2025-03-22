@@ -6,6 +6,7 @@ import BadgeSection from "@/components/BadgeSection";
 import { UserProvider } from "@/context/UserContext";
 import Providers from "./Providers";
 import { ImageProvider } from "@/context/ImageContext";
+import { PackageProvider } from "@/context/PackageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +31,11 @@ export default function RootLayout({ children }) {
       >
 
         <Providers>
+        <PackageProvider>
           <ImageProvider>
             <UserProvider>{children}</UserProvider>
           </ImageProvider>
+        </PackageProvider>
         </Providers>
       </body>
     </html>

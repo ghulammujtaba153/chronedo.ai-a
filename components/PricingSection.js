@@ -17,7 +17,7 @@ const pricingCards = [
             {id: 4, feature: "1000 credits"},
             {id: 5, feature: "1000 credits"},
         ],
-        link: "/",
+        link: "/signin",
         type: "Monthly",
     },
     {
@@ -32,7 +32,7 @@ const pricingCards = [
             {id: 4, feature: "1000 credits"},
             {id: 5, feature: "1000 credits"},
         ],
-        link: "/",
+        link: "/signin",
         type: "Monthly",
     },
     {
@@ -47,7 +47,7 @@ const pricingCards = [
             {id: 4, feature: "1000 credits"},
             {id: 5, feature: "1000 credits"},
         ],
-        link: "/",
+        link: "/signin",
         type: "Monthly",
     },
     {
@@ -62,7 +62,7 @@ const pricingCards = [
             {id: 4, feature: "1000 credits"},
             {id: 5, feature: "1000 credits"},
         ],
-        link: "/",
+        link: "/signin",
         type: "Yearly",
     },
     {
@@ -77,7 +77,7 @@ const pricingCards = [
             {id: 4, feature: "1000 credits"},
             {id: 5, feature: "1000 credits"},
         ],
-        link: "/",
+        link: "/signin",
         type: "Yearly",
     },
     {
@@ -92,7 +92,7 @@ const pricingCards = [
             {id: 4, feature: "1000 credits"},
             {id: 5, feature: "1000 credits"},
         ],
-        link: "/",
+        link: "/signin",
         type: "Yearly",
     },
 ];

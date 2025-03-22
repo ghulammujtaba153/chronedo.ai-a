@@ -7,6 +7,25 @@ body {
   color: #BCC3D7;
 }
 
+/* Custom Scrollbar Styles */
+.scrollbar-custom::-webkit-scrollbar {
+  height: 8px; /* Height of the scrollbar */
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: #2d3748; /* Track color (gray-800) */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: #4a5568; /* Thumb color (gray-700) */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: #718096; /* Thumb color on hover (gray-600) */
+}
+
 @layer base {
   :root {
     --sidebar-background: 0 0% 98%;

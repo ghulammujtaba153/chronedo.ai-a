@@ -1,9 +1,49 @@
 import React from "react";
 import Link from "next/link";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
+import { loadStripe } from "@stripe/stripe-js";
+import { usePackage } from "@/context/PackageContext";
+import { useUser } from "@/context/UserContext";
 
 const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
-    return (
+    const { savePackage } = usePackage();
+    const {user} = useUser();
+    
+    const handleCheckout = async () => {
+        console.log("checkout")
+        const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
+        savePackage({
+            UserId: user?.userId, 
+            name: card.title,
+            price: card.price,
+        });
+      
+        
+        const response = await fetch("/api/create-checkout-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ priceId: card.id }), 
+        });
+      
+        const session = await response.json();
+        
+      
+        
+        const result = await stripe.redirectToCheckout({ sessionId: session.id });
+        if (result.error) {
+          console.error(result.error.message);
+        }else {
+            savePackage({
+                UserId: user?.userId, 
+                name: card.title,
+                price: card.price,
+            });
+        }
+      };
+
+      return (
         <div 
             onClick={onClick}
             className={`flex flex-col gap-4 border ${
@@ -33,8 +73,23 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                     </li>
                 ))}
             </ul>
-            <Link 
-                href={card.link} 
+            {!card.link && <button 
+                onClick={handleCheckout} 
+                className={`text-white text-lg font-semibold my-4 border ${
+                    currentPlan 
+                        ? "bg-gradient-to-r from-[#21ACFD] to-[#2174FE] border-transparent" 
+                        : "border-gray-700 bg-[#217DFE08]"
+                } backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent`}
+            >
+                {
+                    currentPlan? "Current plan" : "Get Started"
+                }
+                
+            </button>}
+
+            {card.link && 
+                <Link 
+                href={card.link}
                 className={`text-white text-lg font-semibold my-4 border ${
                     currentPlan 
                         ? "bg-gradient-to-r from-[#21ACFD] to-[#2174FE] border-transparent" 
@@ -46,6 +101,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                 }
                 
             </Link>
+            }
         </div>
     );
 };

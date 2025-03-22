@@ -73,7 +73,7 @@ const SignIn = () => {
       console.error("Error logging in:", error);
 
       if (error.response) {
-        // Improved handling for specific error statuses
+        
         if (error.response.status === 404) {
           setError("User not found. Please check your email.");
         } else if (error.response.status === 401) {

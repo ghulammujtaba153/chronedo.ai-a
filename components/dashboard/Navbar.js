@@ -1,18 +1,37 @@
 import { ChevronDownIcon, SearchIcon, UserIcon } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { Bars3Icon, XCircleIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 const Navbar = () => {
   const { user, logout } = useUser();
   const [bar, setBar] = useState(false);
+  const [dropdown, setDropdown] = useState(false);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!user)return
+    const fetch =async() => {
+      const res =await axios.get(`/api/packages/${user.userId}`);
+      if (!res.data.name){
+        setCount(5);
+        return
+      }
+
+      setCount(res.data.name === 'Premium' ? 100 : res.data.name === 'Basic' ? 5 : 50 );
+      console.log(res.data);
+    }
+    fetch()
+
+  },[user])
 
   const handleLogout = () => {
           toast.info('Logging out...', { duration: 1000 });
           logout();
-          // toast.success('Logged out successfully!', { duration: 2000 });
+          toast.success('Logged out successfully!', { duration: 2000 });
       }
 
   return (
@@ -105,7 +124,7 @@ const Navbar = () => {
               alt="notification"
               className="max-w-8 max-h-8"
             />
-            <p className="text-normal sm:text-xl font-bold">53</p>
+            <p className="text-normal sm:text-xl font-bold">{count}</p>
           </div>
 
           {/* Divider */}
@@ -122,7 +141,19 @@ const Navbar = () => {
                 {user?.email || "guest@example.com"}
               </p>
             </div>
-            <ChevronDownIcon className="w-4 h-4" />
+            <div className="relative flex items-center p-2 hover:bg-gray-500 rounded-md cursor-pointer" onClick={()=> setDropdown(!dropdown)}>
+              <ChevronDownIcon className="w-4 h-4" />
+              {
+              dropdown && (
+                <div onClick={handleLogout} className="absolute p-2 top-10 right-0 mt-2 w-40 bg-gray-900 border border-[#0093E87D] rounded-md shadow-md">
+                  <p className="te">Logout</p>
+                </div>
+              )
+            }
+            </div>
+
+            
+            
           </div>
         </div>
       </div>

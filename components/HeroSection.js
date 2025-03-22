@@ -199,7 +199,7 @@ const HeroSection = () => {
         console.log("Image uploaded successfully:", putResponse.status);
 
         // Step 3: Remove the background
-        await generateAIBackground(imageUrl); // Call the removeBackground function
+        await generateAIBackground(imageUrl); 
       } else {
         throw new Error("Failed to generate upload URL.");
       }
