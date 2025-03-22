@@ -1,5 +1,5 @@
 import { ChevronDownIcon, SearchIcon, UserIcon } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
 import { Bars3Icon, XCircleIcon } from "@heroicons/react/24/outline";
@@ -8,37 +8,6 @@ import { toast } from "react-toastify";
 const Navbar = () => {
   const { user, logout } = useUser();
   const [bar, setBar] = useState(false);
-  const [remainingCount, setRemainingCount] = useState(0);
-
-  useEffect(() => {
-    // Calculate remaining count based on user type and used count
-    const calculateRemainingCount = () => {
-      const userType = localStorage.getItem("type") || "visitor";
-      const maxLimit = userType === "visitor" ? 3 : 5;
-      const usedCount = parseInt(localStorage.getItem("count")) || 0;
-      return Math.max(0, maxLimit - usedCount);
-    };
-    
-    // Set initial remaining count
-    setRemainingCount(calculateRemainingCount());
-    
-    // Add event listener to update count when localStorage changes
-    const handleStorageChange = () => {
-      setRemainingCount(calculateRemainingCount());
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // Also check for changes every second (for same-window updates)
-    const intervalId = setInterval(() => {
-      setRemainingCount(calculateRemainingCount());
-    }, 1000);
-    
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      clearInterval(intervalId);
-    };
-  }, []);
 
   const handleLogout = () => {
           toast.info('Logging out...', { duration: 1000 });
@@ -136,7 +105,7 @@ const Navbar = () => {
               alt="notification"
               className="max-w-8 max-h-8"
             />
-            <p className="text-normal sm:text-xl font-bold">{remainingCount}</p>
+            <p className="text-normal sm:text-xl font-bold">53</p>
           </div>
 
           {/* Divider */}

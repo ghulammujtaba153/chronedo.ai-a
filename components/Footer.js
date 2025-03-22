@@ -1,6 +1,7 @@
 import { EnvelopeIcon, MapIcon, PhoneIcon } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "lucide-react";
 import React from "react";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -9,7 +10,7 @@ const Footer = () => {
         {/* Column 1 */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <img src="/logo.png" alt="logo" className="w-30 h-10" />
+            <img src="/Chronedo_AI.png" alt="logo" className="w-30 h-10" />
             <p className="text-white text-sm">
               © 2025 Watch Background Generator. All rights reserved.
             </p>
@@ -33,10 +34,11 @@ const Footer = () => {
         {/* Column 2 */}
         <div className="flex flex-col gap-4 cursor-pointer">
           <h1 className="text-white text-sm">Quick Links</h1>
-          <p className="text-sm text-gray-400 hover:text-white">Pages</p>
-          <p className="text-sm text-gray-400 hover:text-white">Home</p>
-          <p className="text-sm text-gray-400 hover:text-white">About</p>
-          <p className="text-sm text-gray-400 hover:text-white">Contact</p>
+          <Link href="/" className="text-sm text-gray-400 hover:text-white">Home</Link>
+          <Link href="/about" className="text-sm text-gray-400 hover:text-white">About</Link>
+          <Link href="/pricing" className="text-sm text-gray-400 hover:text-white">Pricing</Link>
+          <Link href="/terms" className="text-sm text-gray-400 hover:text-white">Terms & Conditions</Link>
+          <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">Privacy Policy</Link>
         </div>
 
         {/* Column 3 */}

@@ -7,7 +7,7 @@ const activeCardId=1;
 
 const pricingCards = [
     {
-        id: 1,
+        id: "price_1R4PjxPFeWozK4w0xh6lAuic",
         title: "Basic",
         description: "For the casual user",
         price: "Free",
@@ -22,10 +22,10 @@ const pricingCards = [
         type: "Monthly",
     },
     {
-        id: 2,
-        title: "Pro",
+        id: "price_1R4PnmPFeWozK4w0RDKavyji",
+        title: "Premium",
         description: "For the power user",
-        price: "$10",
+        price: "19.99",
         features: [
             {id: 1, feature: "1000 credits"},
             {id: 2, feature: "1000 credits"},
@@ -37,10 +37,10 @@ const pricingCards = [
         type: "Monthly",
     },
     {
-        id: 3,
+        id: "price_1R4YtKPFeWozK4w0eJBpOoZz",
         title: "Enterprise",
         description: "For the enterprise user",
-        price: "$10",
+        price: "39.91",
         features: [
             {id: 1, feature: "1000 credits"},
             {id: 2, feature: "1000 credits"},
@@ -55,7 +55,7 @@ const pricingCards = [
         id: 4,
         title: "Enterprise",
         description: "For the enterprise user",
-        price: "$10",
+        price: "10",
         features: [
             {id: 1, feature: "1000 credits"},
             {id: 2, feature: "1000 credits"},

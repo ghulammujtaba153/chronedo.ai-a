@@ -88,6 +88,7 @@ const handler = NextAuth({
 
             // Check if the user already exists
             const existingUser = await User.findOne({ email: user.email });
+            user.userId = existingUser._id;
 
             if (!existingUser) {
                 // Create a new user for OAuth
@@ -100,6 +101,7 @@ const handler = NextAuth({
                 });
 
                 await newUser.save();
+                user.userId = newUser._id;
             } else if (existingUser.provider !== account.provider) {
                 // If the user exists but signed in with a different provider
                 return false; // Prevent sign-in
@@ -111,7 +113,7 @@ const handler = NextAuth({
             console.log("JWT token:", user);
             if (user) {
                 // Add user data to the token
-                token.id = user.id;
+                token.userId = user.userId;
                 token.name = user.name;
                 token.email = user.email;
                 token.image = user.image;
@@ -119,7 +121,7 @@ const handler = NextAuth({
                 // Sign the token with your custom JWT secret key
                 const customToken = jwt.sign(
                     {
-                        userId: user.id,
+                        userId: user.userId,
                         email: user.email,
                         name: user.name,
                         image: user.image,

@@ -15,28 +15,26 @@ import { useEffect } from "react";
 
 export default function Home() {
   const { data: session } = useSession();
-    
-      useEffect(() => {
-        if (session) {
-          console.log("Session data:", session);
-          localStorage.setItem("token", session.customToken);
-        }
-      }, [session]);
+
+  useEffect(() => {
+    if (session) {
+      console.log("Session data:", session);
+      // Store the token in localStorage
+      localStorage.setItem("token", session.customToken);
+    }
+  }, [session]);
 
 
   return (
     <MainLayout>
-    <div className="w-full flex flex-col items-center justify-center overflow-x-hidden">
-      {/* <Navbar /> */}
-      <HeroSection />
-      <Gallery />
-      <WorkSection />
-      <PricingSection />
-      <TestimonialSection />
-      <FAQSection />
-      {/* <BadgeSection /> */}
-      {/* <Footer /> */}
-    </div>
+      <div className="w-full flex flex-col items-center justify-center overflow-x-hidden">
+        {/* <Navbar /> */}
+        <HeroSection />
+        <Gallery />
+        <WorkSection />
+        {/* <BadgeSection /> */}
+        {/* <Footer /> */}
+      </div>
     </MainLayout>
   );
 }

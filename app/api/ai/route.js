@@ -3,12 +3,13 @@ import axios from "axios";
 
 export async function POST(request) {
   try {
-    const { imageUrl } = await request.json();
+    const { imageUrl, prompt } = await request.json();
 
     //  payload
     const payload = {
       imageUrl: imageUrl,
-      textPrompt: "Leather background",
+      textPrompt: prompt,
+      styleStrength: 0.1,
     };
 
     

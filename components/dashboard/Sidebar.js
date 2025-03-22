@@ -59,11 +59,7 @@ const Sidebar = () => {
 
                 {/* Navigation */}
                 <nav className="flex-1 px-3 py-4 space-y-1">
-                    <h1 className={`font-bold transition-all mb-4 text-white text-center duration-300 ${
-                        isOpen ? "text-2xl" : "text-lg"
-                    } text-white`}>
-                        {isOpen ? "Logoipsum" : "L"}
-                    </h1>
+                    <img src="/Chronedo_AI.png" alt="Logo" width={120} height={120} className={`mx-auto -mt-4 mb-4 ${isOpen ? "block" : "hidden"}`}/>
 
                     {/* Menu Items */}
                     <div className="space-y-1">

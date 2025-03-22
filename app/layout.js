@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import BadgeSection from "@/components/BadgeSection";
 import { UserProvider } from "@/context/UserContext";
 import Providers from "./Providers";
+import { ImageProvider } from "@/context/ImageContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +28,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
+
         <Providers>
-          <UserProvider>{children}</UserProvider>
+          <ImageProvider>
+            <UserProvider>{children}</UserProvider>
+          </ImageProvider>
         </Providers>
       </body>
     </html>
