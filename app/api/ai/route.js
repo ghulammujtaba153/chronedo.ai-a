@@ -31,6 +31,8 @@ export async function POST(request) {
       }
     );
 
+    console.log("Response from LightX:", response.data);
+
     const data = response.data;
     console.log("Response from AI background generation:", data);
 

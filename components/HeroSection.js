@@ -205,6 +205,8 @@ const HeroSection = () => {
         });
 
         if (!putResponse.ok) {
+          let currentCount = parseInt(localStorage.getItem("count")) || 0;
+          localStorage.setItem("count", currentCount - 1);
           throw new Error(
             `Failed to upload image. Status: ${putResponse.status}`
           );
@@ -249,6 +251,8 @@ const HeroSection = () => {
         const { orderId } = data;
         await pollForResult(orderId); // Poll for the result
       } else {
+          let currentCount = parseInt(localStorage.getItem("count")) || 0;
+          localStorage.setItem("count", currentCount - 1);
         // throw new Error(data.message || "Failed to generate background.");
         setErrorMessage("Failed to generate background. Please try again.");
       }

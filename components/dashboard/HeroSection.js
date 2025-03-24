@@ -109,11 +109,12 @@ const HeroSection = () => {
       console.log("subscriber")
       
       if (imageCount <= 0) {
-        setImageCount(imageCount - 1);
+        
         setError("You have reached your image limit for this month.");
         return;
       }
       try {
+        setImageCount(imageCount - 1);
         const res = await axios.post("/api/packages/update-count", {
           userId: user.userId || user._id,
           count: -1,
@@ -274,6 +275,21 @@ const HeroSection = () => {
         const { orderId } = data;
         await pollForResult(orderId);
       } else {
+
+        try {
+          setImageCount(imageCount + 1);
+          const res = await axios.post("/api/packages/update-count", {
+            userId: user.userId || user._id,
+            count: 1,
+          });
+          console.log(res.data);
+        } catch (error) {
+          setError(error);
+          console.log(error);
+          return
+          
+        }
+
         throw new Error(data.message || "Failed to generate background.");
       }
     } catch (error) {
@@ -324,7 +340,7 @@ const HeroSection = () => {
       console.log(user);
       setSavingImage(true);
       const res = await axios.post("/api/image", {
-        userId: user.userId,
+        userId: user?.userId || user?._id,
         imageUrl: output,
       });
       console.log("Image saved:", res.data);
@@ -506,7 +522,7 @@ const HeroSection = () => {
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full text-gray-400">
-            <CloudUpload className="w-full h-full" />
+            <CloudUpload className=" w-[50%] h-[50%] md:w-full md:h-full" />
           </div>
         )}
       </div>

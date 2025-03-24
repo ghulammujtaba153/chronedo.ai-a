@@ -7,6 +7,16 @@ body {
   color: #BCC3D7;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
 /* Custom Scrollbar Styles */
 .scrollbar-custom::-webkit-scrollbar {
   height: 8px; /* Height of the scrollbar */
