@@ -7,13 +7,44 @@ import { useUser } from "@/context/UserContext";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import axios from "axios";
+import { useImageCount } from "@/context/ImageCountContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { setSession, user } = useUser();
   const pathname = usePathname();
-
   const { data: session } = useSession();
+  const { imageCount, setImageCount } = useImageCount();
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchImageCount = async () => {
+      try {
+        const userId = user?.userId || user._id;
+        const res = await axios.get(`/api/packages/${userId}`);
+        
+        if (!res.data?.name) {
+          setImageCount(5); // Default count
+          return;
+        }
+        
+        const count = res.data.name === 'Premium' ? res.data.images : 5;
+        setImageCount(count);
+        
+        if (res.data.name === 'Premium') {
+          localStorage.setItem("type", "subscriber");
+        }
+      } catch (error) {
+        console.error("Error fetching image count:", error);
+        setImageCount(5); // Fallback count
+      }
+    };
+
+    fetchImageCount();
+  }, [user]);
+
 
   useEffect(() => {
     if (session) {

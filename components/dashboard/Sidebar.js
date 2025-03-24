@@ -28,6 +28,7 @@ const Sidebar = () => {
 
     const handleLogout = () => {
         toast.info('Logging out...', { duration: 1000 });
+        
         logout();
         // toast.success('Logged out successfully!', { duration: 2000 });
     }

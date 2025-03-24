@@ -4,6 +4,29 @@ import React from "react";
 import Link from "next/link";
 
 const Footer = () => {
+  const [mail, setMail] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+
+  const handleMail = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const res = await fetch("/api/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mail }),
+    });
+    const data = await res.json();
+    setMail("");
+    if (data) {
+      
+      setLoading(false);
+    } else {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex flex-col w-full bg-[#000] mt-4 border-t border-[#0093E8] text-sm py-4 px-4">
       <div className="flex max-w-[1200px] w-full justify-between flex-wrap mx-auto py-10 gap-4">
@@ -21,10 +44,12 @@ const Footer = () => {
             <div className="flex items-center gap-2">
               <input
                 type="text"
+                value={mail}
+                onChange={(e) => setMail(e.target.value)}
                 placeholder="Enter your email"
                 className="w-full p-2 rounded-md bg-transparent border border-gray-700 outline-none"
               />
-              <button className="bg-[#21ACFD] text-white px-4 py-2 h-full rounded-md hover:bg-[#2174FE] cursor-pointer">
+              <button onClick={handleMail} disabled={loading} className="bg-[#21ACFD] text-white px-4 py-2 h-full rounded-md hover:bg-[#2174FE] disabled:cursor-not-allowed cursor-pointer">
                 <ArrowRightIcon className="w-4 h-4" />
               </button>
             </div>

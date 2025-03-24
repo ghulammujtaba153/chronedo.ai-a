@@ -1,11 +1,41 @@
-"use client"
-// contexts/ImageCountContext.js
-import { createContext, useState, useContext } from "react";
+"use client";
+import { createContext, useState, useContext, useEffect } from "react";
+import { useUser } from "./UserContext";
+import axios from "axios";
 
 const ImageCountContext = createContext();
 
 export const ImageCountProvider = ({ children }) => {
   const [imageCount, setImageCount] = useState(0);
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchImageCount = async () => {
+      try {
+        const userId = user?.userId || user._id;
+        const res = await axios.get(`/api/packages/${userId}`);
+        
+        if (!res.data?.name) {
+          setImageCount(5); // Default count
+          return;
+        }
+        
+        const count = res.data.name === 'Premium' ? res.data.images : 5;
+        setImageCount(count);
+        
+        if (res.data.name === 'Premium') {
+          localStorage.setItem("type", "subscriber");
+        }
+      } catch (error) {
+        console.error("Error fetching image count:", error);
+        setImageCount(5); // Fallback count
+      }
+    };
+
+    fetchImageCount();
+  }, [user]);
 
   return (
     <ImageCountContext.Provider value={{ imageCount, setImageCount }}>
@@ -14,4 +44,11 @@ export const ImageCountProvider = ({ children }) => {
   );
 };
 
-export const useImageCount = () => useContext(ImageCountContext);
+// Always export the hook with proper error handling
+export const useImageCount = () => {
+  const context = useContext(ImageCountContext);
+  if (!context) {
+    throw new Error('useImageCount must be used within an ImageCountProvider');
+  }
+  return context;
+};

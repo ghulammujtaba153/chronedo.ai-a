@@ -3,6 +3,10 @@ import React, { useState } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import Notification from "./Notification";
+import { useImageCount } from "@/context/ImageCountContext";
+import axios from "axios";
+import { useUser } from "@/context/UserContext";
+import EmailModal from "./EmailModal";
 
 const prompts = [
   {
@@ -54,6 +58,14 @@ const HeroSection = () => {
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   const [customPrompt, setCustomPrompt] = useState("");
   const [randomPrompt, setRandomPrompt] = useState("");
+  const { imageCount, setImageCount } = useImageCount();
+  const { user } = useUser();
+  const [savingImage, setSavingImage]=useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  // const handleFileChange = (e) => {
+  //   setFile(e.target.files[0]);
+  // };
 
   const handlePromptClick = (prompt) => {
     setSelectedPrompt(prompt);
@@ -80,54 +92,93 @@ const HeroSection = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+    
     if (!file) return;
+    
 
-    const userType = localStorage.getItem("type") || "visitor"; // Default to 'visitor' if no type is found
-    const maxLimit = userType === "visitor" ? 3 : 5;
-
-    // Get the current date in YYYY-MM-DD format
-    const currentDate = new Date().toISOString().split("T")[0];
-
-    // Retrieve the stored date and count from localStorage
-    const storedDate = localStorage.getItem("date");
-    let currentCount = parseInt(localStorage.getItem("count")) || 0;
-
-    if (storedDate !== currentDate) {
-      currentCount = 0; // Reset count for the new day
-
-      localStorage.setItem("date", currentDate); // Update the stored date
-    }else{
-      if (userType === "visitor") {
-        if (currentCount >= 3) {
-          setErrorMessage("You have reached the maximum limit, register ");
-          return;
-        }
-      }else {
-        if (currentCount >= 5) {
-          setErrorMessage("You have reached the maximum limit, login & Subcribe now!");
-          return;
-        }
-      }
-      
+    if (!user){
+      localStorage.setItem("type", "visitor")
     }
+  
+    const userType = localStorage.getItem("type") || "visitor"; // Default to 'visitor'
+    console.log("userType:", userType, "Selected file:", file.name);
+  
+    try {
+      if (userType === "subscriber") {
+        // Subscriber logic
+        console.log("Processing as subscriber");
+        setIsLoading(true);
+        
+        // Verify subscription status
+        const userId = user?.userId || user._id;
+        const packageRes = await axios.get(`/api/packages/${userId}`);
+        
+        if (!packageRes.data?.name) {
+          setImageCount(5); // Default count for unverified subscribers
+          throw new Error("Subscription not verified");
+        }
+  
+        const isPremium = packageRes.data.name === 'Premium';
+        const availableCount = isPremium ? packageRes.data.images : 5;
+        setImageCount(availableCount);
+        setIsLoading(false);
+  
+        if (availableCount <= 0) {
+          throw new Error("You've reached your image limit for this month");
+        }
 
-    if (currentCount < maxLimit) {
-      localStorage.setItem("count", currentCount + 1);
 
-      setImage(URL.createObjectURL(file));
-      setFile(file);
-      // await uploadToLightX(file); // Trigger the upload
+        setImage(URL.createObjectURL(file));
+        setFile(file);
+  
+        // Deduct count and update
+        
+        
+        // await uploadToLightX(file);
+        // handleTest(file);
+  
+      } else {
 
-      console.log("local storage count", localStorage.getItem("count"));
-    } else {
-      console.log("error in handleFileChange");
-      const errorMessage =
-        userType === "visitor"
-          ? "You have reached the maximum limit of 3 images. Please login to continue."
-          : "You have reached the maximum limit of 5 images. Please upgrade to PRO to continue.";
-
-      setErrorMessage(errorMessage);
-      console.log("local storage count", localStorage.getItem("count"));
+        console.log("Processing as visitor")
+        // Visitor/Non-subscriber logic
+        const maxLimit = userType === "visitor" ? 3 : 5;
+        const currentDate = new Date().toISOString().split("T")[0];
+        const storedDate = localStorage.getItem("date");
+        let currentCount = parseInt(localStorage.getItem("count")) || 0;
+        console.log("currentCount", currentCount);
+  
+        // Reset counter if new day
+        if (storedDate !== currentDate) {
+          currentCount = 0;
+          localStorage.setItem("date", currentDate);
+        }
+  
+        // Check limits
+        if (currentCount >= maxLimit) {
+          const errorMsg = userType === "visitor" 
+            ? "Maximum 3 images/day. Register for more!"
+            : "Maximum 5 images/day. Upgrade to PRO!";
+            
+            setShowModal(true);
+            return;
+          throw new Error(errorMsg);
+          
+        }
+  
+        // Process file
+        localStorage.setItem("count", currentCount + 1);
+        setImage(URL.createObjectURL(file));
+        setFile(file);
+        console.log("File processed. Daily count:", currentCount + 1);
+      }
+  
+    } catch (error) {
+      console.error("File processing error:", error);
+      setErrorMessage(error.message);
+      if (userType === "subscriber") {
+        // Revert count if update failed
+        setImageCount(imageCount + 1);
+      }
     }
   };
 
@@ -215,7 +266,7 @@ const HeroSection = () => {
         console.log("Image uploaded successfully:", putResponse.status);
 
         // Step 3: Remove the background
-        await generateAIBackground(imageUrl); 
+        await generateAIBackground(imageUrl);
       } else {
         throw new Error("Failed to generate upload URL.");
       }
@@ -251,8 +302,8 @@ const HeroSection = () => {
         const { orderId } = data;
         await pollForResult(orderId); // Poll for the result
       } else {
-          let currentCount = parseInt(localStorage.getItem("count")) || 0;
-          localStorage.setItem("count", currentCount - 1);
+        let currentCount = parseInt(localStorage.getItem("count")) || 0;
+        localStorage.setItem("count", currentCount - 1);
         // throw new Error(data.message || "Failed to generate background.");
         setErrorMessage("Failed to generate background. Please try again.");
       }
@@ -266,6 +317,19 @@ const HeroSection = () => {
   const pollForResult = async (orderId) => {
     const pollInterval = 3000; // Poll every 3 seconds
     const maxAttempts = 5; // Maximum number of retries
+
+    try {
+      const updateRes = await axios.post("/api/packages/update-count", {
+        userId: user.userId || user._id,
+        count: -1,
+      });
+      
+      setImageCount(imageCount- 1);
+      
+    } catch (error) {
+      console.log(error)
+    }
+    
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
@@ -282,12 +346,17 @@ const HeroSection = () => {
 
         if (data.status === "active") {
           setResultImage(data.output); // Set the result image URL
+          if(localStorage.getItem("type") === "subscriber"){
+            handleDBImage(data.output);
+          }
+          
           return;
         } else if (data.status === "failed") {
           throw new Error("Background generation failed.");
         }
       } catch (error) {
         console.error("Error fetching result:", error);
+        
         setErrorMessage("Error fetching result:", error);
       }
 
@@ -304,17 +373,41 @@ const HeroSection = () => {
     link.click();
   };
 
+
+  const handleDBImage = async (output) => {
+      try {
+        console.log(user);
+        setSavingImage(true);
+        const res = await axios.post("/api/image", {
+          userId: user?.userId || user?._id,
+          imageUrl: output,
+        });
+        console.log("Image saved:", res.data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setSavingImage(false);
+      }
+    };
+
   return (
     <div className="relative w-full flex flex-col items-center justify-center px-4 pb-[100px] pt-[200px]">
       {/* Blur Effect */}
       <div className="absolute top-0 left-0 w-full h-full z-20 flex justify-end item-center items-center pointer-events-none">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.3 }}
           className="w-[40%] h-[60%] mr-10 rounded-full bg-[#2176FE66] blur-[150px]"
         ></motion.div>
       </div>
+
+      {/* email modal */}
+      <EmailModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        
+      />
 
       <div className="relative flex flex-col items-center justify-center max-w-[1200px] mx-auto">
         {/* Content Section */}
@@ -324,7 +417,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-lg italic sm:text-[35px] md:text-[55px] font-normal leading-tight">It's Free:</motion.p>
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -345,7 +438,7 @@ const HeroSection = () => {
           </motion.h1> */}
         </div>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -358,11 +451,11 @@ const HeroSection = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ 
-            duration: 0.7, 
+          transition={{
+            duration: 0.7,
             delay: 0.6,
-            type: "spring", 
-            stiffness: 120 
+            type: "spring",
+            stiffness: 120
           }}
           className="flex flex-col items-center justify-center mt-4 px-4 py-4 
             border-2 border-gray-900
@@ -385,14 +478,14 @@ const HeroSection = () => {
           </p>
 
           {errorMessage && (
-                      <Notification
-                        isOpen={true}
-                        onClose={() => setErrorMessage("")}
-                        title="Error"
-                        message={errorMessage}
-                        type="error"
-                      />
-                    )}
+            <Notification
+              isOpen={true}
+              onClose={() => setErrorMessage("")}
+              title="Error"
+              message={errorMessage}
+              type="error"
+            />
+          )}
 
           <input
             id="file-upload"
@@ -409,7 +502,7 @@ const HeroSection = () => {
           >
             Select A Photo
             <motion.div
-              animate={{ 
+              animate={{
                 y: [0, -4, 0],
               }}
               transition={{
@@ -422,10 +515,10 @@ const HeroSection = () => {
             </motion.div>
           </motion.label>
 
-          
+
 
           {image && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
@@ -450,6 +543,9 @@ const HeroSection = () => {
           )}
 
           {/* Result Section */}
+          {savingImage && (
+            <p className="text-blue-300 mt-4">saving image ...</p>
+          )}
           {isLoading && <p className="text-blue-500 mt-4">Processing...</p>}
           {isError && (
             <p className="text-red-500 mt-4">
@@ -484,25 +580,25 @@ const HeroSection = () => {
             className="flex flex-col items-center w-full max-w-md mx-auto"
           >
             {/* Terms and Conditions Checkbox - Enhanced */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.1 }}
               className="mt-6 flex items-center justify-center gap-3 bg-[#217DFE08] border border-[#0093E840] rounded-xl px-4 py-3 w-full"
             >
-              <motion.div 
+              <motion.div
                 whileTap={{ scale: 0.9 }}
                 className="relative"
               >
-                <input 
-                  type="checkbox" 
-                  id="terms-checkbox" 
+                <input
+                  type="checkbox"
+                  id="terms-checkbox"
                   className="appearance-none w-5 h-5 border-2 border-[#0093E8] rounded-md bg-[#0D0B1380] checked:bg-gradient-to-r checked:from-[#21ACFD] checked:to-[#2174FE] checked:border-transparent focus:outline-none cursor-pointer"
                 />
                 {/* Checkmark icon that appears when checked */}
-                <svg 
+                <svg
                   className="absolute top-0 left-0 w-5 h-5 pointer-events-none text-white opacity-0 peer-checked:opacity-100"
-                  xmlns="http://www.w3.org/2000/svg" 
+                  xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -513,7 +609,7 @@ const HeroSection = () => {
                   <polyline points="6 12 10 16 18 8"></polyline>
                 </svg>
               </motion.div>
-              <motion.label 
+              <motion.label
                 htmlFor="terms-checkbox"
                 className="text-sm sm:text-base text-gray-300 cursor-pointer"
                 whileHover={{ color: "#fff" }}
@@ -532,15 +628,14 @@ const HeroSection = () => {
                   whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ 
-                    duration: 0.3, 
-                    delay: 0.1 * index 
+                  transition={{
+                    duration: 0.3,
+                    delay: 0.1 * index
                   }}
-                  className={`px-4 py-2 mx-2 rounded-md cursor-pointer hover:bg-gradient-to-r from-[#21ABFD] to-[#0055DE] hover:text-white ${
-                    selectedPrompt === prompt
+                  className={`px-4 py-2 mx-2 rounded-md cursor-pointer hover:bg-gradient-to-r from-[#21ABFD] to-[#0055DE] hover:text-white ${selectedPrompt === prompt
                       ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
                       : "bg-gray-800 text-white"
-                  }`}
+                    }`}
                 >
                   {prompt.name}
                 </motion.button>
@@ -581,7 +676,7 @@ const HeroSection = () => {
               onClick={() => uploadToLightX(file)}
               disabled={isLoading}
               className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white px-12 py-4 rounded-full mt-6 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
-              whileHover={{ 
+              whileHover={{
                 scale: 1.05,
                 boxShadow: "0 0 15px rgba(33, 171, 253, 0.5)"
               }}
@@ -603,7 +698,7 @@ const HeroSection = () => {
                   repeatType: "reverse"
                 }}
               />
-              
+
               {/* Text and loading spinner */}
               <span className="relative z-10 font-medium flex items-center justify-center">
                 {isLoading ? (

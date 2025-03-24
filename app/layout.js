@@ -7,6 +7,7 @@ import { UserProvider } from "@/context/UserContext";
 import Providers from "./Providers";
 import { ImageProvider } from "@/context/ImageContext";
 import { PackageProvider } from "@/context/PackageContext";
+import { ImageCountProvider } from "@/context/ImageCountContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,11 +32,15 @@ export default function RootLayout({ children }) {
       >
 
         <Providers>
-        <PackageProvider>
-          <ImageProvider>
-            <UserProvider>{children}</UserProvider>
-          </ImageProvider>
-        </PackageProvider>
+        <UserProvider>
+          <ImageCountProvider>
+            <PackageProvider>
+              <ImageProvider>
+                {children}
+              </ImageProvider>
+            </PackageProvider>
+          </ImageCountProvider>
+          </UserProvider>
         </Providers>
       </body>
     </html>
