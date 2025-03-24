@@ -10,9 +10,9 @@ const MainLayout = ({ children }) => {
       {/* Background Grid Layer */}
       <div className="fixed inset-0 z-0">
         <img
-          src="/Background_Grid.png"
+          src="/Background_Grid1.png"
           alt="Background Grid"
-          className="w-full h-full object-cover opacity-30"
+          className="w-full h-full object-cover "
         />
       </div>
 

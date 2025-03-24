@@ -101,8 +101,8 @@ const SignIn = () => {
 
   return (
     <MainLayout>
-      <div className="flex flex-col items-center justify-center px-4 pb-10 px-4 pt-[150px]">
-        <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10 justify-center w-full mx-auto">
+      <div className="flex w-full flex-col items-center justify-center px-4 pb-10 pt-[150px]">
+        <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10 max-w-[600px] md:w-[700px] mx-auto">
           <h1 className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] bg-clip-text text-transparent font-bold text-2xl">
             Chronedo.AI
           </h1>
@@ -134,8 +134,7 @@ const SignIn = () => {
             </div>
           )}
 
-          <div className="flex sm:flex-row flex-col items-center justify-center gap-4 w-full ">
-            <div
+<div
               onClick={handleGoogleLogin}
               disabled={loading}
               className="flex items-center text-normal cursor-pointer hover:bg-gray-700 transition-all border-2 border-gray-700 rounded-xl p-2 gap-2 disabled:cursor-not-allowed disabled:bg-gray-700"
@@ -147,19 +146,6 @@ const SignIn = () => {
               <p className="text-white">Continue with Google</p>
             </div>
 
-            <div
-              onClick={handleAppleLogin}
-              disabled={loading}
-              className="flex items-center text-normal cursor-pointer hover:bg-gray-700 transition-all border-2 border-gray-700 rounded-xl p-2 gap-2 disabled:cursor-not-allowed disabled:bg-gray-700"
-            >
-              <FontAwesomeIcon
-                icon={faApple}
-                className="w-5 h-5 text-gray-500"
-              />
-              <p className="text-white">Continue with Apple</p>
-            </div>
-          </div>
-
           {/* Or continue with */}
           <div className="flex items-center w-full gap-2">
             <div className="flex-1 h-[1px] bg-gray-700"></div>
@@ -170,7 +156,7 @@ const SignIn = () => {
           </div>
 
           {/* Email and Password */}
-          <div className="flex flex-col items-center justify-center gap-6 w-full max-w-[400px] mx-auto">
+          <div className="flex flex-col items-center justify-center gap-6 w-full  mx-auto">
             {/* Email Input */}
             <div className="w-full flex items-center gap-3 border-2 border-gray-700 rounded-xl p-3 bg-transparent">
               <EnvelopeIcon className="w-5 h-5 text-gray-500" />

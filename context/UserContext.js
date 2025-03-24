@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import jwtDecode from 'jwt-decode';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import axios from 'axios';
 
 const UserContext = createContext();
 
@@ -13,21 +14,33 @@ export const UserProvider = ({ children }) => {
 
     // Decode token and set user data
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const decodedUser = jwtDecode(token);
-                console.log(decodedUser)
-                setUser(decodedUser);
-            } catch (error) {
-                console.error('Invalid token:', error);
-                logout();
+        const fetchUser = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decodedUser = jwtDecode(token);
+                    console.log("decodedUser", decodedUser);
+                    const res = await axios.get(`/api/auth/${decodedUser.userId || decodedUser._id}`);
+                    console.log("context uerer by id", res.data);
+                    if (res.data.user) {
+                        // const decodedUser = jwtDecode(res.data.token);
+                        setUser(res.data.user); // Set user data from the API
+                    } else {
+                        setUser(decodedUser); // Fallback to decoded token data
+                    }
+                } catch (error) {
+                    console.error('Invalid token or API error:', error);
+                    logout(); // Logout if token is invalid or API fails
+                }
             }
-        }
-    }, []);
+        };
+
+        fetchUser();
+    }, [router]);
 
     // Login function
     const login = (token) => {
+        console.log("token", jwtDecode(token));
         localStorage.setItem('token', token);
         const decodedUser = jwtDecode(token);
         console.log("decodedUser, login", decodedUser);
@@ -39,7 +52,7 @@ export const UserProvider = ({ children }) => {
         if (session) {
             const decodedUser = jwtDecode(session.customToken);
             localStorage.setItem('token', session.customToken);
-            console.log(decodedUser);
+            console.log("session user", decodedUser);
             setUser(decodedUser);
         }
     }

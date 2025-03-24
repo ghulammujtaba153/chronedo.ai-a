@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
+import Notification from "./Notification";
 
 const prompts = [
   {
@@ -95,6 +96,19 @@ const HeroSection = () => {
       currentCount = 0; // Reset count for the new day
 
       localStorage.setItem("date", currentDate); // Update the stored date
+    }else{
+      if (userType === "visitor") {
+        if (currentCount >= 3) {
+          setErrorMessage("You have reached the maximum limit, register ");
+          return;
+        }
+      }else {
+        if (currentCount >= 5) {
+          setErrorMessage("You have reached the maximum limit, login & Subcribe now!");
+          return;
+        }
+      }
+      
     }
 
     if (currentCount < maxLimit) {
@@ -235,10 +249,12 @@ const HeroSection = () => {
         const { orderId } = data;
         await pollForResult(orderId); // Poll for the result
       } else {
-        throw new Error(data.message || "Failed to generate background.");
+        // throw new Error(data.message || "Failed to generate background.");
+        setErrorMessage("Failed to generate background. Please try again.");
       }
     } catch (error) {
       console.error("Error generating background:", error);
+      setErrorMessage("Failed to generate background. Please try again.");
       setIsError(true);
     }
   };
@@ -268,6 +284,7 @@ const HeroSection = () => {
         }
       } catch (error) {
         console.error("Error fetching result:", error);
+        setErrorMessage("Error fetching result:", error);
       }
 
       await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -286,27 +303,32 @@ const HeroSection = () => {
   return (
     <div className="relative w-full flex flex-col items-center justify-center px-4 pb-[100px] pt-[200px]">
       {/* Blur Effect */}
-      <div className="absolute top-0 left-0 w-full h-full z-20 flex justify-end items-center pointer-events-none">
+      <div className="absolute top-0 left-0 w-full h-full z-20 flex justify-end item-center items-center pointer-events-none">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 0.3 }}
-          className="w-[50%] h-full rounded-full bg-[#2176FE14] blur-[150px]"
+          className="w-[40%] h-[60%] mr-10 rounded-full bg-[#2176FE66] blur-[150px]"
         ></motion.div>
       </div>
 
       <div className="relative flex flex-col items-center justify-center max-w-[1200px] mx-auto">
         {/* Content Section */}
-        <div className="flex flex-col items-center justify-center gap-1 text-white relative">
+        <div className="flex flex-col  justify-center gap-1 text-white relative">
+
+          <motion.p initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-lg italic sm:text-[35px] md:text-[55px] font-normal leading-tight">It's Free:</motion.p>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-2xl sm:text-[35px] md:text-[65px] font-semibold"
+            className="text-lg sm:text-[35px] md:text-[55px] font-semibold leading-tight"
           >
-            Transform Your Watch
+            One-Click Background Perfection for Your Watch Photos
           </motion.h1>
-          <motion.h1 
+          {/* <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -316,7 +338,7 @@ const HeroSection = () => {
             <span className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] bg-clip-text text-transparent font-bold">
               Chronedo.AI
             </span>
-          </motion.h1>
+          </motion.h1> */}
         </div>
 
         <motion.p 
@@ -338,10 +360,36 @@ const HeroSection = () => {
             type: "spring", 
             stiffness: 120 
           }}
-          className="flex flex-col items-center justify-center mt-4 px-4 py-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-[40px] w-full max-w-[400px] min-h-[170px] relative z-10"
+          className="flex flex-col items-center justify-center mt-4 px-4 py-4 
+            border-2 border-gray-900
+            bg-gradient-to-r from-gray-500 to-[#151515]/60 
+            backdrop-blur-lg 
+            rounded-[40px] w-full min-h-[170px] 
+            relative z-10"
+
+
+
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
         >
+          <p className="text-[#2174FE] font-bold text-normal">
+            Upload Watch Photo
+          </p>
+
+          <p className="text-[#8491A0] font-bold text-sm sm:text-base my-4">
+            Drag and drop your image here
+          </p>
+
+          {errorMessage && (
+                      <Notification
+                        isOpen={true}
+                        onClose={() => setErrorMessage("")}
+                        title="Error"
+                        message={errorMessage}
+                        type="error"
+                      />
+                    )}
+
           <input
             id="file-upload"
             type="file"
@@ -355,7 +403,7 @@ const HeroSection = () => {
             whileTap={{ scale: 0.98 }}
             className="flex items-center gap-2 sm:text-lg text-sm text-white px-6 py-3 bg-gradient-to-r from-[#21ACFD] to-[#2174FE] rounded-full cursor-pointer transition-all hover:opacity-90"
           >
-            Upload Image
+            Select A Photo
             <motion.div
               animate={{ 
                 y: [0, -4, 0],
@@ -370,9 +418,7 @@ const HeroSection = () => {
             </motion.div>
           </motion.label>
 
-          <p className="text-gray-400 text-sm sm:text-base mt-4">
-            or drop a file
-          </p>
+          
 
           {image && (
             <motion.div 

@@ -5,24 +5,40 @@ import { useUser } from "@/context/UserContext";
 import { Bars3Icon, XCircleIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useImageCount } from "@/context/ImageCountContext";
 
 const Navbar = () => {
   const { user, logout } = useUser();
   const [bar, setBar] = useState(false);
   const [dropdown, setDropdown] = useState(false);
   const [count, setCount] = useState(0);
+  const { imageCount, setImageCount } = useImageCount(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!user)return
+    setLoading(true);
     const fetch =async() => {
-      const res =await axios.get(`/api/packages/${user.userId}`);
-      if (!res.data.name){
-        setCount(5);
-        return
-      }
+      try {
+        console.log("fetching count",user);
+        const res =await axios.get(`/api/packages/${user?.userId || user._id}`);
+        if (!res.data?.name){
+          setCount(5);
+          setImageCount(5);
+          return
+        }
 
-      setCount(res.data.name === 'Premium' ? 100 : res.data.name === 'Basic' ? 5 : 50 );
-      console.log(res.data);
+        setCount(res.data.name === 'Premium' && res.data.images  );
+        setImageCount(res.data.name === 'Premium' && res.data.images  );
+        localStorage.setItem("type", "subcriber")
+        console.log(res.data);
+        
+      } catch (error) {
+        console.log(error);
+      }finally {
+        setLoading(false);
+      }
+      
     }
     fetch()
 
@@ -104,7 +120,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar
           <div className="flex items-center gap-2 md:gap-4 bg-[#217DFE0F] w-full max-w-[400px] p-1 md:p-2 rounded-md border border-[#0093E87D]">
             <SearchIcon className="w-6 h-6" />
             <input
@@ -112,7 +128,7 @@ const Navbar = () => {
               placeholder="Search"
               className="w-full p-1 rounded-md outline-none bg-transparent"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* User Profile Section */}
@@ -124,7 +140,7 @@ const Navbar = () => {
               alt="notification"
               className="max-w-8 max-h-8"
             />
-            <p className="text-normal sm:text-xl font-bold">{count}</p>
+            <p className="text-normal sm:text-xl font-bold">{loading? "..." : imageCount}</p>
           </div>
 
           {/* Divider */}

@@ -8,7 +8,7 @@ const Gallery = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="flex flex-col gap-2 w-full items-center justify-center bg-[#217DFE08] shadow-[0_-2px_10px_-1px_rgba(0,147,232,1)] rounded-lg py-4"
+        className="flex flex-col gap-2 w-full items-center justify-center bg-[#0B1018] shadow-[0_-2px_10px_-1px_rgba(0,147,232,1)] rounded-lg py-4"
       >
         
         <motion.div 

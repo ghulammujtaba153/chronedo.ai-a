@@ -5,62 +5,45 @@ import axios from "axios";
 import { useUser } from "@/context/UserContext";
 
 const pricingCards = [
-    {
-        id: "price_1R4PjxPFeWozK4w0xh6lAuic",
-        title: "Basic",
-        description: "For the casual user",
-        price: "Free",
-        features: [
-            { id: 1, feature: "1000 credits" },
-            { id: 2, feature: "1000 credits" },
-            { id: 3, feature: "1000 credits" },
-            { id: 4, feature: "1000 credits" },
-            { id: 5, feature: "1000 credits" },
-        ],
-        type: "Monthly",
-    },
+    // {
+    //     id: "price_1R4PjxPFeWozK4w0xh6lAuic",
+    //     title: "Basic",
+    //     description: "For the casual user",
+    //     price: "Free",
+    //     features: [
+    //         { id: 1, feature: "1000 credits" },
+    //         { id: 2, feature: "1000 credits" },
+    //         { id: 3, feature: "1000 credits" },
+    //         { id: 4, feature: "1000 credits" },
+    //         { id: 5, feature: "1000 credits" },
+    //     ],
+    //     type: "Monthly",
+    // },
     {
         id: "price_1R4PnmPFeWozK4w0RDKavyji",
         title: "Premium",
         description: "For the power user",
         price: "19.99",
         features: [
-            { id: 1, feature: "1000 credits" },
-            { id: 2, feature: "1000 credits" },
-            { id: 3, feature: "1000 credits" },
-            { id: 4, feature: "1000 credits" },
-            { id: 5, feature: "1000 credits" },
+            { id: 1, feature: "50 images per day" },
+            
         ],
         type: "Monthly",
     },
-    {
-        id: "price_1R4YtKPFeWozK4w0eJBpOoZz",
-        title: "Enterprise",
-        description: "For the enterprise user",
-        price: "39.91",
-        features: [
-            { id: 1, feature: "1000 credits" },
-            { id: 2, feature: "1000 credits" },
-            { id: 3, feature: "1000 credits" },
-            { id: 4, feature: "1000 credits" },
-            { id: 5, feature: "1000 credits" },
-        ],
-        type: "Monthly",
-    },
-    {
-        id: 4,
-        title: "Enterprise",
-        description: "For the enterprise user",
-        price: "10",
-        features: [
-            { id: 1, feature: "1000 credits" },
-            { id: 2, feature: "1000 credits" },
-            { id: 3, feature: "1000 credits" },
-            { id: 4, feature: "1000 credits" },
-            { id: 5, feature: "1000 credits" },
-        ],
-        type: "Yearly",
-    },
+    // {
+    //     id: "price_1R4YtKPFeWozK4w0eJBpOoZz",
+    //     title: "Enterprise",
+    //     description: "For the enterprise user",
+    //     price: "39.91",
+    //     features: [
+    //         { id: 1, feature: "1000 credits" },
+    //         { id: 2, feature: "1000 credits" },
+    //         { id: 3, feature: "1000 credits" },
+    //         { id: 4, feature: "1000 credits" },
+    //         { id: 5, feature: "1000 credits" },
+    //     ],
+    //     type: "Monthly",
+    // }
 ];
 
 const Subscription = () => {
@@ -71,10 +54,11 @@ const Subscription = () => {
 
     useEffect(() => {
         if (!user) return;
+        console.log("user in subscription",user);
 
         const fetchCurrentPackage = async () => {
             try {
-                const res = await axios.get(`/api/packages/${user.userId}`);
+                const res = await axios.get(`/api/packages/${user.userId || user._id}`);
                 if (!res.data) {
                     setCurrentPackage("Basic"); // Default to Basic if no package is found
                     return;

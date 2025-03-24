@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { loadStripe } from "@stripe/stripe-js";
@@ -8,15 +9,20 @@ import { useUser } from "@/context/UserContext";
 const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
     const { savePackage } = usePackage();
     const {user} = useUser();
+    const [loading, setLoading]=useState(false);
+    console.log("price card user", user)
     
     const handleCheckout = async () => {
         console.log("checkout")
+        setLoading(true);
         const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
         savePackage({
-            UserId: user?.userId, 
+            UserId: user?.userId || user._id, 
             name: card.title,
             price: card.price,
         });
+
+        
       
         
         const response = await fetch("/api/create-checkout-session", {
@@ -32,6 +38,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
       
         
         const result = await stripe.redirectToCheckout({ sessionId: session.id });
+        setLoading(false);
         if (result.error) {
           console.error(result.error.message);
         }else {
@@ -73,8 +80,23 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                     </li>
                 ))}
             </ul>
-            {!card.link && <button 
-                onClick={handleCheckout} 
+            {!currentPlan && <button 
+                onClick={handleCheckout}
+                disabled={loading} 
+                className={`text-white text-lg font-semibold my-4 cursor-pointer border ${
+                    currentPlan 
+                        ? "bg-gradient-to-r from-[#21ACFD] to-[#2174FE] border-transparent" 
+                        : "border-gray-700 bg-[#217DFE08]"
+                } backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent disabled:cursor-not-allowed`}
+            >
+                {
+                    currentPlan? "Current plan" : "Get Started"
+                }
+                
+            </button>}
+
+            {currentPlan && <button 
+                // onClick={handleCheckout} 
                 className={`text-white text-lg font-semibold my-4 border ${
                     currentPlan 
                         ? "bg-gradient-to-r from-[#21ACFD] to-[#2174FE] border-transparent" 
@@ -87,21 +109,6 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                 
             </button>}
 
-            {card.link && 
-                <Link 
-                href={card.link}
-                className={`text-white text-lg font-semibold my-4 border ${
-                    currentPlan 
-                        ? "bg-gradient-to-r from-[#21ACFD] to-[#2174FE] border-transparent" 
-                        : "border-gray-700 bg-[#217DFE08]"
-                } backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent`}
-            >
-                {
-                    currentPlan? "Current plan" : "Get Started"
-                }
-                
-            </Link>
-            }
         </div>
     );
 };

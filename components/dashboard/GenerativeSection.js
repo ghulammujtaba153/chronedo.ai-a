@@ -69,13 +69,13 @@ const GenerativeSection = () => {
                 Pickup where you left off in Generative Section
             </p>
 
-            <div className='flex flex-col md:flex-row items-center w-full h-full gap-4'>
-                <div onClick={() => setSelectedImage(null)} className='flex items-center justify-center border border-gray-50 rounded-xl w-[200px] h-[200px] cursor-pointer hover:bg-gray-600 transition'>
+            <div className='flex items-center w-full h-full gap-4'>
+                {/* <div onClick={() => setSelectedImage(null)} className='flex items-center justify-center border border-gray-50 rounded-xl w-[200px] h-[200px] cursor-pointer hover:bg-gray-600 transition'>
                     <PlusCircleIcon className='max-w-10 max-h-10 text-white' />
-                </div>
+                </div> */}
 
                 {/* Horizontal Scrollable Container for Images */}
-                <div className="w-full max-w-[800px] mx-auto overflow-x-auto scrollbar-custom">
+                <div className="w-full mx-auto overflow-x-auto scrollbar-custom">
                     <div className="flex gap-4">
                         {isLoading ? (
                             // Show shimmer effect while loading

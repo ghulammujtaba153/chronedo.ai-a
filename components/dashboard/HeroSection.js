@@ -4,6 +4,8 @@ import Link from "next/link";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import { useImage } from "@/context/ImageContext"; // Import useImage
+import Notification from "../Notification";
+import { useImageCount } from "@/context/ImageCountContext";
 
 const prompts = [
   {
@@ -48,11 +50,12 @@ const HeroSection = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
   const { user } = useUser();
-  const { resultImage, setResultImage } = useImage(); // Use resultImage and setResultImage from ImageContext
+  const { resultImage, setResultImage } = useImage(null); // Use resultImage and setResultImage from ImageContext
   const [isOpen, setIsOpen] = useState(false);
   const [selectedPrompt, setSelectedPrompt] = useState(null);
   const [customPrompt, setCustomPrompt] = useState("");
   const [randomSubmenuOpen, setRandomSubmenuOpen] = useState(false);
+  const { imageCount, setImageCount } = useImageCount();
 
   const handlePromptClick = (prompt) => {
     if (prompt.name === "Random") {
@@ -81,6 +84,9 @@ const HeroSection = () => {
   };
 
   const handleFileChange = async (e) => {
+    setImage(null);
+    setFile(null);
+    setResultImage(null);
     const selectedFile = e.target.files[0];
 
     setError(null);
@@ -94,9 +100,37 @@ const HeroSection = () => {
 
     setImage(URL.createObjectURL(selectedFile));
 
-    const userType = localStorage.getItem("type") || "visitor";
-    const maxLimit = userType === "visitor" ? 3 : 5;
+    const userType = localStorage.getItem("type") || "user";
+    // const maxLimit = userType === "visitor" ? 3 : 15;
 
+    const maxLimit= imageCount;
+
+    if(userType === "subcriber"){
+      console.log("subscriber")
+      
+      if (imageCount <= 0) {
+        setImageCount(imageCount - 1);
+        setError("You have reached your image limit for this month.");
+        return;
+      }
+      try {
+        const res = await axios.post("/api/packages/update-count", {
+          userId: user.userId || user._id,
+          count: -1,
+        });
+        console.log(res.data);
+      } catch (error) {
+        setError(error);
+        console.log(error);
+        return
+        
+      }
+      
+      await uploadToLightX(selectedFile);
+      handleTest(selectedFile);
+
+    }else{
+      
     // Get the current date in YYYY-MM-DD format
     const currentDate = new Date().toISOString().split("T")[0];
 
@@ -118,6 +152,20 @@ const HeroSection = () => {
 
     if (currentCount < maxLimit) {
       localStorage.setItem("count", currentCount + 1);
+      setImageCount(imageCount - 1)
+      try {
+        const res = await axios.post("/api/packages/update-count", {
+          userId: user.userId || user._id,
+          count: -1,
+        });
+        console.log(res.data);
+      } catch (error) {
+        setError(error);
+        console.log(error);
+        return
+        
+      }
+      
       await uploadToLightX(selectedFile);
       handleTest(selectedFile);
       console.log("local storage count", localStorage.getItem("count"));
@@ -129,6 +177,12 @@ const HeroSection = () => {
       setError(errorMessage);
       console.log("local storage count", localStorage.getItem("count"));
     }
+
+    }
+    
+
+
+    
   };
 
   const handleTest = (file) => {
@@ -175,6 +229,7 @@ const HeroSection = () => {
         });
 
         if (!putResponse.ok) {
+          setError("Failed to upload image. Please try again.");
           throw new Error(
             `Failed to upload image. Status: ${putResponse.status}`
           );
@@ -183,6 +238,7 @@ const HeroSection = () => {
         console.log("Image uploaded successfully:", putResponse.status);
         await generateAIBackground(imageUrl);
       } else {
+        setError("Failed to upload image. Please try again.");
         throw new Error("Failed to generate upload URL.");
       }
     } catch (error) {
@@ -200,6 +256,7 @@ const HeroSection = () => {
 
       if (!selectedPrompt.prompt) {
         setError("Please select a prompt.");
+
       }
 
       const response = await fetch("/api/ai", {
@@ -220,6 +277,7 @@ const HeroSection = () => {
         throw new Error(data.message || "Failed to generate background.");
       }
     } catch (error) {
+      setError("Failed to generate background. Please try again.");
       console.error("Error generating background:", error);
       setIsError(true);
     }
@@ -292,6 +350,15 @@ const HeroSection = () => {
 
   return (
     <div className="flex flex-col md:flex-row justify-between bg-[#217DFE0F] p-6 gap-4 rounded-xl border border-[#0093E87D]">
+      {error && (
+                            <Notification
+                              isOpen={true}
+                              onClose={() => setError("")}
+                              title="Error"
+                              message={error}
+                              type="error"
+                            />
+                          )}
       {/* Left Section */}
       <div className="flex flex-col w-full md:w-1/2 space-y-4 leading-wide">
         <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white">

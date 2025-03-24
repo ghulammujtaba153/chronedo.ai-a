@@ -7,15 +7,7 @@ const HeroSection = () => {
         <div className="relative w-full flex flex-col items-center justify-center px-4 pb-[100px] pt-[200px]">
             {/* Layer Image - Positioned Below Content */}
             <div className="absolute inset-0 z-0">
-                <motion.img
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 1.2 }}
-                    src="/public/Background_Grid.png
-"
-                    alt="Hero Background"
-                    className="w-full h-full object-cover"
-                />
+                
             </div>
 
             {/* Blur Effect */}
