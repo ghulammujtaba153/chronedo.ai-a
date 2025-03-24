@@ -109,11 +109,12 @@ const HeroSection = () => {
       console.log("subscriber")
       
       if (imageCount <= 0) {
-        setImageCount(imageCount - 1);
+        
         setError("You have reached your image limit for this month.");
         return;
       }
       try {
+        setImageCount(imageCount - 1);
         const res = await axios.post("/api/packages/update-count", {
           userId: user.userId || user._id,
           count: -1,
