@@ -5,20 +5,17 @@ import axios from "axios";
 import { useUser } from "@/context/UserContext";
 
 const pricingCards = [
-    // {
-    //     id: "price_1R4PjxPFeWozK4w0xh6lAuic",
-    //     title: "Basic",
-    //     description: "For the casual user",
-    //     price: "Free",
-    //     features: [
-    //         { id: 1, feature: "1000 credits" },
-    //         { id: 2, feature: "1000 credits" },
-    //         { id: 3, feature: "1000 credits" },
-    //         { id: 4, feature: "1000 credits" },
-    //         { id: 5, feature: "1000 credits" },
-    //     ],
-    //     type: "Monthly",
-    // },
+    {
+        id: "price_1R4PjxPFeWozK4w0xh6lAuic",
+        title: "Pro",
+        description: "For the casual user",
+        price: "228",
+        features: [
+            { id: 1, feature: "1000 credits" },
+           
+        ],
+        type: "Yearly",
+    },
     {
         id: "price_1R4PnmPFeWozK4w0RDKavyji",
         title: "Premium",
