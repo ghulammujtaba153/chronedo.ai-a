@@ -6,6 +6,7 @@ import { Bars3Icon, XCircleIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useImageCount } from "@/context/ImageCountContext";
+import { usePackage } from "@/context/PackageContext";
 
 const Navbar = () => {
   const { user, logout } = useUser();
@@ -14,6 +15,7 @@ const Navbar = () => {
   const [count, setCount] = useState(0);
   const { imageCount, setImageCount } = useImageCount(0);
   const [loading, setLoading] = useState(false);
+  const {savePackage} =usePackage()
 
   useEffect(() => {
     if (!user)return
@@ -25,8 +27,14 @@ const Navbar = () => {
         const res =await axios.get(`/api/packages/${user?.userId || user._id}`);
         console.log(res.data);
         if (!res.data?.name){
-          setCount(25);
+          savePackage({
+            UserId: user?.userId || user._id,
+            name: "Free",
+            price: "0",
+            images: 25,
+          })
           setImageCount(25);
+          setCount(25);
           return
         }
 

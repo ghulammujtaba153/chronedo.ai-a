@@ -2,16 +2,28 @@ import { EnvelopeIcon, MapIcon, PhoneIcon, XMarkIcon } from "@heroicons/react/24
 import { ArrowRightIcon, CheckIcon, Cross } from "lucide-react";
 import React from "react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 const Footer = () => {
   const [mail, setMail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
   const [error, setError] = React.useState(false);
+  const [showPolicy, setShowPolicy] = React.useState(false);
+
   
 
   const handleMail = async (e) => {
     e.preventDefault();
+
+    const termsCheckbox = document.getElementById('terms-checkbox');
+  
+    if (!termsCheckbox.checked) {
+      setError("Please accept the terms and conditions.");
+      toast.error("Please accept the terms and conditions.");
+      return false;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/email", {
@@ -50,7 +62,7 @@ const Footer = () => {
               <input
                 type="text"
                 value={mail}
-                onChange={(e) => {setMail(e.target.value); setError(false); setSuccess(false);}}
+                onChange={(e) => {setMail(e.target.value); setError(false); setSuccess(false); setShowPolicy(true)}}
                 placeholder="Enter your email"
                 className="w-full p-2 rounded-md bg-transparent border border-gray-700 outline-none"
               />
@@ -80,6 +92,22 @@ const Footer = () => {
 
 
             </div>
+
+            {
+              showPolicy &&
+              <div className="flex items-center gap-2 text-sm">
+                <input 
+                  type="checkbox" 
+                  id="terms-checkbox" 
+                  className="checkbox checkbox-primary border-2 border-[#0093E8] rounded-sm bg-transparent
+                        hover:border-[#21ABFD] focus:ring-2 focus:ring-[#21ACFD]
+                        checked:bg-[#0093E8] checked:border-[#0093E8]" 
+                />
+                <label htmlFor="terms-checkbox" className="cursor-pointer ml-2">
+                  I agree with the <a href="/terms" className="text-[#0093E8] hover:underline">Terms & Conditions</a>
+                </label>
+              </div>}
+
           </div>
         </div>
 

@@ -57,7 +57,7 @@ const HeroSection = () => {
   const [customPrompt, setCustomPrompt] = useState("");
   const [randomSubmenuOpen, setRandomSubmenuOpen] = useState(false);
   const { imageCount, setImageCount } = useImageCount();
-  const {savePackage} =usePackage()
+  const { savePackage } = usePackage()
 
   const handlePromptClick = (prompt) => {
     if (prompt.name === "Random") {
@@ -98,50 +98,24 @@ const HeroSection = () => {
       setError("Please select a prompt.");
       return;
     }
+
+    const userId = user?.userId || user._id;
+    
+
+    const availableCount = imageCount;
+
+    if (availableCount <= 0) {
+      setErrorMessage("You've reached your image limit for this month.");
+      return; // Exit early to avoid processing
+    }
+    setImage(URL.createObjectURL(selectedFile));
     setFile(selectedFile);
 
-    setImage(URL.createObjectURL(selectedFile));
 
-     const userId = user?.userId || user._id;
-    const packageRes = await axios.get(`/api/packages/${userId}`);
-            
-      if (!packageRes.data?.name) {
-              savePackage({
-                UserId: user?.userId || user._id,
-                name: "Free",
-                price: "0",
-                images: 25,
-              })
-              setImageCount(25); // Default count for unverified subscribers
-              // throw new Error("Subscription not verified");
-            }
+    await uploadToLightX(selectedFile);
 
-            const availableCount = packageRes.data.images ;
-            setImageCount(availableCount);
-            setIsLoading(false);
-      
-            if (availableCount <= 0) {
-              setErrorMessage("You've reached your image limit for this month.");
-              return; // Exit early to avoid processing
-            }
-            setImage(URL.createObjectURL(file));
-            setFile(file);
+  }
 
-      
-      await uploadToLightX(selectedFile);
-
-    }
-    
-
-
-    
-  
-
-  const handleTest = (file) => {
-    console.log("test");
-    console.log("files", file);
-    console.log("prompts", selectedPrompt.prompt);
-  };
 
   const uploadToLightX = async (file) => {
     setIsLoading(true);
@@ -238,7 +212,7 @@ const HeroSection = () => {
           setError(error);
           console.log(error);
           return
-          
+
         }
 
         throw new Error(data.message || "Failed to generate background.");
@@ -270,15 +244,15 @@ const HeroSection = () => {
         if (data.status === "active") {
           console.log("Setting resultImage:", data.output); // Debugging
           setResultImage(data.output); // Update resultImage in ImageContext
-          if(user){
+          if (user) {
             const updateRes = await axios.post("/api/packages/update-count", {
               userId: user.userId || user._id,
               count: -1,
             });
-            setImageCount(imageCount- 1);
-          
-          handleDBImage(data.output);
-        }
+            setImageCount(imageCount - 1);
+
+            handleDBImage(data.output);
+          }
           return;
         } else if (data.status === "failed") {
           throw new Error("Background generation failed.");
@@ -326,14 +300,14 @@ const HeroSection = () => {
   return (
     <div className="flex flex-col md:flex-row justify-between bg-[#217DFE0F] p-6 gap-4 rounded-xl border border-[#0093E87D]">
       {error && (
-                            <Notification
-                              isOpen={true}
-                              onClose={() => setError("")}
-                              title="Error"
-                              message={error}
-                              type="error"
-                            />
-                          )}
+        <Notification
+          isOpen={true}
+          onClose={() => setError("")}
+          title="Error"
+          message={error}
+          type="error"
+        />
+      )}
       {/* Left Section */}
       <div className="flex flex-col w-full md:w-1/2 space-y-4 leading-wide">
         <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white">
@@ -357,9 +331,8 @@ const HeroSection = () => {
               {selectedPrompt ? selectedPrompt.name : "Select an option"}
             </span>
             <svg
-              className={`w-4 h-4 transition-transform ${
-                isOpen ? "rotate-180" : ""
-              }`}
+              className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""
+                }`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
