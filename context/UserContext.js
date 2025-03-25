@@ -20,7 +20,7 @@ export const UserProvider = ({ children }) => {
                 try {
                     const decodedUser = jwtDecode(token);
                     console.log("decodedUser", decodedUser);
-                    const res = await axios.get(`/api/auth/${decodedUser.userId || decodedUser._id}`);
+                    const res = await axios.get(`/api/${decodedUser.userId || decodedUser._id}`);
                     console.log("context uerer by id", res.data);
                     if (res.data.user) {
                         // const decodedUser = jwtDecode(res.data.token);
