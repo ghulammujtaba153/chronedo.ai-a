@@ -15,6 +15,7 @@ import { useUser } from "@/context/UserContext";
 import { signIn, useSession } from "next-auth/react";
 import Notification from "@/components/Notification";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
@@ -103,9 +104,7 @@ const SignIn = () => {
     <MainLayout>
       <div className="flex w-full flex-col items-center justify-center px-4 pb-10 pt-[150px]">
         <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10 max-w-[600px] md:w-[700px] mx-auto">
-          <h1 className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] bg-clip-text text-transparent font-bold text-2xl">
-            Chronedo.AI
-          </h1>
+          <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
 
           {success && (
             <Notification

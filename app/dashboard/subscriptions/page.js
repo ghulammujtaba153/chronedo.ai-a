@@ -6,6 +6,18 @@ import { useUser } from "@/context/UserContext";
 
 const pricingCards = [
     {
+        id: "1",
+        title: "Free",
+        description: "For the casual user",
+        price: "0",
+        images: 5,
+        features: [
+            { id: 1, feature: "25 credits" },
+           
+        ],
+        type: "Monthly",
+    },
+    {
         id: "price_1R4PjxPFeWozK4w0xh6lAuic",
         title: "Pro",
         description: "For the casual user",
@@ -17,30 +29,42 @@ const pricingCards = [
         type: "Yearly",
     },
     {
-        id: "price_1R4PnmPFeWozK4w0RDKavyji",
-        title: "Premium",
+        id: "price_1R6Rv2PFeWozK4w0HhFXlo2c",
+        title: "Basic",
         description: "For the power user",
         price: "19.99",
+        images: 30,
         features: [
-            { id: 1, feature: "50 images per day" },
+            { id: 1, feature: "30 images per day" },
             
         ],
         type: "Monthly",
     },
-    // {
-    //     id: "price_1R4YtKPFeWozK4w0eJBpOoZz",
-    //     title: "Enterprise",
-    //     description: "For the enterprise user",
-    //     price: "39.91",
-    //     features: [
-    //         { id: 1, feature: "1000 credits" },
-    //         { id: 2, feature: "1000 credits" },
-    //         { id: 3, feature: "1000 credits" },
-    //         { id: 4, feature: "1000 credits" },
-    //         { id: 5, feature: "1000 credits" },
-    //     ],
-    //     type: "Monthly",
-    // }
+    {
+        id: "price_1R6Rx0PFeWozK4w0ZjkrXlw3",
+        title: "Premium",
+        description: "For the power user",
+        price: "39.99",
+        images: 100,
+        features: [
+            { id: 1, feature: "100 images " },
+            
+        ],
+        type: "Monthly",
+    },
+    
+    {
+        id: "price_1R6Ry7PFeWozK4w0k0QHAlj4",
+        title: "Enterprise",
+        description: "For the power user",
+        price: "139.99",
+        images: 400,
+        features: [
+            { id: 1, feature: "400 images " },
+            
+        ],
+        type: "Monthly",
+    },
 ];
 
 const Subscription = () => {
@@ -57,7 +81,7 @@ const Subscription = () => {
             try {
                 const res = await axios.get(`/api/packages/${user.userId || user._id}`);
                 if (!res.data) {
-                    setCurrentPackage("Basic"); // Default to Basic if no package is found
+                    setCurrentPackage("Free"); // Default to Basic if no package is found
                     return;
                 }
 

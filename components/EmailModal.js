@@ -19,7 +19,7 @@ const EmailModal = ({ isOpen, onClose }) => {
     });
     const data = await res.json();
     setEmail("");
-    localStorage.setItem("count", localStorage.getItem("count") + 2);
+    localStorage.setItem("count", localStorage.getItem("count") - 2);
     if (data) {
       
       setIsLoading(false);

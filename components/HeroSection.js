@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ArrowUpCircleIcon } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import Notification from "./Notification";
@@ -7,6 +7,7 @@ import { useImageCount } from "@/context/ImageCountContext";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import EmailModal from "./EmailModal";
+import { usePackage } from "@/context/PackageContext";
 
 const prompts = [
   {
@@ -62,6 +63,7 @@ const HeroSection = () => {
   const { user } = useUser();
   const [savingImage, setSavingImage]=useState(false);
   const [showModal, setShowModal] = useState(false);
+  const { savePackage } = usePackage();
 
   // const handleFileChange = (e) => {
   //   setFile(e.target.files[0]);
@@ -70,7 +72,9 @@ const HeroSection = () => {
   const handlePromptClick = (prompt) => {
     setSelectedPrompt(prompt);
     if (prompt.name === "Random") {
-      setRandomPrompt(prompt.prompt);
+      const options = prompt.prompt.split(", ");
+      const randomIndex = Math.floor(Math.random() * options.length);
+      setRandomPrompt(options[randomIndex]);
       setCustomPrompt("");
     } else if (prompt.name === "Custom Style") {
       setRandomPrompt("");
@@ -85,6 +89,22 @@ const HeroSection = () => {
     setCustomPrompt("");
   };
 
+  const getRandomPrompt = () => {
+    const options = prompts.find(p => p.name === "Random").prompt.split(", ");
+    return options[Math.floor(Math.random() * options.length)];
+  };
+
+  // Set initial random prompt
+  useEffect(() => {
+    if (selectedPrompt?.name === "Random") {
+      const options = prompts.find(p => p.name === "Random").prompt.split(", ");
+      const randomIndex = Math.floor(Math.random() * options.length);
+      setRandomPrompt(options[randomIndex]);
+    } else {
+      setRandomPrompt("");
+    }
+  }, [selectedPrompt]);
+
   const handleCustomPromptChange = (e) => {
     setCustomPrompt(e.target.value);
     // setSelectedPrompt(e.target.value);
@@ -95,17 +115,39 @@ const HeroSection = () => {
     
     if (!file) return;
     
+    var userType;
+    console.log("processing images, finding,user:", user)
 
     if (!user){
-      localStorage.setItem("type", "visitor")
+       userType = "visitor";
+
+       console.log("Processing as visitor");
+        // Visitor/Non-subscriber logic
+        const maxLimit = 5;
+        
+        let currentCount = parseInt(localStorage.getItem("count")) || 0;
+        console.log("currentCount", currentCount);
+
+  
+        // Check limits
+
+        if (currentCount >= maxLimit) {
+          setShowModal(true); // Show upgrade modal
+          setErrorMessage("Subscribe to our Monthly Plan!");
+          // setShowModal(true);
+          return; // Exit early to prevent processing
+        }
+         
+  
+        // Process file
+        localStorage.setItem("count", currentCount + 1);
+        setImage(URL.createObjectURL(file));
+        setFile(file);
+        console.log("File processed. Daily count:", currentCount + 1);
+        return;
     }
-  
-    const userType = localStorage.getItem("type") || "visitor"; // Default to 'visitor'
-    console.log("userType:", userType, "Selected file:", file.name);
-  
-    try {
-      if (userType === "subscriber") {
-        // Subscriber logic
+    else{
+      try {
         console.log("Processing as subscriber");
         setIsLoading(true);
         
@@ -114,63 +156,29 @@ const HeroSection = () => {
         const packageRes = await axios.get(`/api/packages/${userId}`);
         
         if (!packageRes.data?.name) {
-          setImageCount(5); // Default count for unverified subscribers
-          throw new Error("Subscription not verified");
+          savePackage({
+            UserId: user?.userId || user._id,
+            name: "Free",
+            price: "0",
+            images: 25,
+          })
+          setImageCount(25); // Default count for unverified subscribers
+          // throw new Error("Subscription not verified");
         }
-  
-        const isPremium = packageRes.data.name === 'Premium';
-        const availableCount = isPremium ? packageRes.data.images : 5;
+
+        const availableCount = packageRes.data.images ;
         setImageCount(availableCount);
         setIsLoading(false);
   
         if (availableCount <= 0) {
-          throw new Error("You've reached your image limit for this month");
+          setErrorMessage("You've reached your image limit for this month.");
+          return; // Exit early to avoid processing
         }
-
-
         setImage(URL.createObjectURL(file));
         setFile(file);
-  
-        // Deduct count and update
-        
-        
-        // await uploadToLightX(file);
-        // handleTest(file);
-  
-      } else {
 
-        console.log("Processing as visitor")
-        // Visitor/Non-subscriber logic
-        const maxLimit = userType === "visitor" ? 3 : 5;
-        const currentDate = new Date().toISOString().split("T")[0];
-        const storedDate = localStorage.getItem("date");
-        let currentCount = parseInt(localStorage.getItem("count")) || 0;
-        console.log("currentCount", currentCount);
-  
-        // Reset counter if new day
-        if (storedDate !== currentDate) {
-          currentCount = 0;
-          localStorage.setItem("date", currentDate);
-        }
-  
-        // Check limits
-        if (currentCount >= maxLimit) {
-          const errorMsg = userType === "visitor" 
-            ? "Maximum 3 images/day. Register for more!"
-            : "Maximum 5 images/day. Upgrade to PRO!";
-            
-            setShowModal(true);
-            return;
-          throw new Error(errorMsg);
-          
-        }
-  
-        // Process file
-        localStorage.setItem("count", currentCount + 1);
-        setImage(URL.createObjectURL(file));
-        setFile(file);
-        console.log("File processed. Daily count:", currentCount + 1);
-      }
+
+        
   
     } catch (error) {
       console.error("File processing error:", error);
@@ -179,7 +187,17 @@ const HeroSection = () => {
         // Revert count if update failed
         setImageCount(imageCount + 1);
       }
+    }finally{
+      setIsLoading(false);
     }
+
+      
+    }
+  
+    
+    console.log("userType:", userType, "Selected file:", file.name);
+  
+    
   };
 
   const handleDrop = async (e) => {
@@ -309,6 +327,7 @@ const HeroSection = () => {
       }
     } catch (error) {
       console.error("Error generating background:", error);
+      localStorage.setItem("count", currentCount - 1);
       setErrorMessage("Failed to generate background. Please try again.");
       setIsError(true);
     }
@@ -317,18 +336,6 @@ const HeroSection = () => {
   const pollForResult = async (orderId) => {
     const pollInterval = 3000; // Poll every 3 seconds
     const maxAttempts = 5; // Maximum number of retries
-
-    try {
-      const updateRes = await axios.post("/api/packages/update-count", {
-        userId: user.userId || user._id,
-        count: -1,
-      });
-      
-      setImageCount(imageCount- 1);
-      
-    } catch (error) {
-      console.log(error)
-    }
     
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -346,7 +353,13 @@ const HeroSection = () => {
 
         if (data.status === "active") {
           setResultImage(data.output); // Set the result image URL
-          if(localStorage.getItem("type") === "subscriber"){
+          if(user){
+              const updateRes = await axios.post("/api/packages/update-count", {
+                userId: user.userId || user._id,
+                count: -1,
+              });
+              setImageCount(imageCount- 1);
+            
             handleDBImage(data.output);
           }
           
@@ -483,7 +496,7 @@ const HeroSection = () => {
               onClose={() => setErrorMessage("")}
               title="Error"
               message={errorMessage}
-              type="error"
+              type="error1"
             />
           )}
 
@@ -584,7 +597,7 @@ const HeroSection = () => {
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="mt-6 flex items-center justify-center gap-3 bg-[#217DFE08] border border-[#0093E840] rounded-xl px-4 py-3 w-full"
+              className="mt-6 flex items-center justify-center gap-3  border bg-[#0B1018] border-[#0093E840] rounded-xl px-4 py-3 w-full"
             >
               <motion.div
                 whileTap={{ scale: 0.9 }}
@@ -593,21 +606,10 @@ const HeroSection = () => {
                 <input
                   type="checkbox"
                   id="terms-checkbox"
-                  className="appearance-none w-5 h-5 border-2 border-[#0093E8] rounded-md bg-[#0D0B1380] checked:bg-gradient-to-r checked:from-[#21ACFD] checked:to-[#2174FE] checked:border-transparent focus:outline-none cursor-pointer"
+                  className="w-4 h-4 border-2 border-[#0093E8] rounded-md bg-transparent checked:bg-[#0093E8] checked:border-[#0093E8] focus:outline-none cursor-pointer"
                 />
-                {/* Checkmark icon that appears when checked */}
-                <svg
-                  className="absolute top-0 left-0 w-5 h-5 pointer-events-none text-white opacity-0 peer-checked:opacity-100"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <polyline points="6 12 10 16 18 8"></polyline>
-                </svg>
+
+                
               </motion.div>
               <motion.label
                 htmlFor="terms-checkbox"
@@ -643,18 +645,14 @@ const HeroSection = () => {
             </div>
 
             {/* Conditional Rendering */}
-            {selectedPrompt && selectedPrompt.name === "Random" && (
+            {selectedPrompt?.name === "Random" && (
               <div className="mt-4 w-full max-w-md">
                 <select
                   value={randomPrompt}
-                  onChange={handleRandomPromptChange}
-                  className="w-full p-2 border border-[#0093E8] bg-[#0D0B13] text-white rounded-md focus:ring-2 focus:ring-[#21ACFD]"
+                  disabled
+                  className="w-full p-2 border border-[#0093E8] bg-[#0D0B13] text-white rounded-md focus:ring-2 focus:ring-[#21ACFD] disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {selectedPrompt.prompt.split(", ").map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                  <option value={randomPrompt}>{randomPrompt}</option>
                 </select>
               </div>
             )}

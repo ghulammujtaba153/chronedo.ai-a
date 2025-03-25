@@ -1,28 +1,33 @@
-import { EnvelopeIcon, MapIcon, PhoneIcon } from "@heroicons/react/24/outline";
-import { ArrowRightIcon } from "lucide-react";
+import { EnvelopeIcon, MapIcon, PhoneIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { ArrowRightIcon, CheckIcon, Cross } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 
 const Footer = () => {
   const [mail, setMail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+  const [success, setSuccess] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  
 
   const handleMail = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const res = await fetch("/api/email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ mail }),
-    });
-    const data = await res.json();
-    setMail("");
-    if (data) {
+    try {
+      const res = await fetch("/api/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ mail }),
+      });
+      const data = await res.json();
+      setMail("");
+      setSuccess(true);
       
-      setLoading(false);
-    } else {
+    } catch (error) {
+      setError(true);
+    }finally {
       setLoading(false);
     }
   }
@@ -45,13 +50,35 @@ const Footer = () => {
               <input
                 type="text"
                 value={mail}
-                onChange={(e) => setMail(e.target.value)}
+                onChange={(e) => {setMail(e.target.value); setError(false); setSuccess(false);}}
                 placeholder="Enter your email"
                 className="w-full p-2 rounded-md bg-transparent border border-gray-700 outline-none"
               />
-              <button onClick={handleMail} disabled={loading} className="bg-[#21ACFD] text-white px-4 py-2 h-full rounded-md hover:bg-[#2174FE] disabled:cursor-not-allowed cursor-pointer">
-                <ArrowRightIcon className="w-4 h-4" />
+
+              {
+                !success && !error && <button onClick={handleMail} disabled={loading} className="bg-[#21ACFD] text-white px-4 py-2 h-full rounded-md hover:bg-[#2174FE] disabled:cursor-not-allowed cursor-pointer">
+                {
+                  loading ? <span className="loading loading-ring loading-xs"></span> : 
+                  <ArrowRightIcon className="w-4 h-4" />}
+              </button>}
+
+              {/* error btn */}
+              {
+                error && <button className="bg-[#f03333] text-white px-4 py-2 h-full rounded-md hover:bg-[#d16969] disabled:cursor-not-allowed cursor-pointer">
+                  <XMarkIcon className="w-4 h-4" />
               </button>
+              }
+              
+
+
+              {/* success btn */}
+              {
+                success &&
+                <button onClick={handleMail} disabled={loading} className="bg-[#72cb06] text-white px-4 py-2 h-full rounded-md hover:bg-[#86f18a] disabled:cursor-not-allowed cursor-pointer">
+                  <CheckIcon className="w-4 h-4" />
+              </button>}
+
+
             </div>
           </div>
         </div>
@@ -59,9 +86,9 @@ const Footer = () => {
         {/* Column 2 */}
         <div className="flex flex-col gap-4 cursor-pointer">
           <h1 className="text-white text-sm">Quick Links</h1>
-          <Link href="/" className="text-sm text-gray-400 hover:text-white">Home</Link>
-          <Link href="/about" className="text-sm text-gray-400 hover:text-white">About</Link>
-          <Link href="/pricing" className="text-sm text-gray-400 hover:text-white">Pricing</Link>
+          <a href="https://www.chronedo-podcast.com" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-white">Chronedo Podcast</a>
+          <Link href="/about" className="text-sm text-gray-400 hover:text-white">Contact</Link>
+          <Link href="/pricing" className="text-sm text-gray-400 hover:text-white">Imprint</Link>
           <Link href="/terms" className="text-sm text-gray-400 hover:text-white">Terms & Conditions</Link>
           <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">Privacy Policy</Link>
         </div>

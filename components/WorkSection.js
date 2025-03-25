@@ -9,21 +9,21 @@ const workCards = [
   {
     id: 1,
     icon: <UserIcon className="w-5 h-5 text-white" />,
-    title: "Upload a watch photo",
+    title: "1. Upload a watch photo",
     description: "Create an account to get started",
     link: "/",
   },
   {
     id: 2,
     icon: <BrainIcon className="w-5 h-5 text-white" />,
-    title: "AI enhances your background",
+    title: "2. AI enhances your background",
     description: "Create an account to get started",
     link: "/",
   },
   {
     id: 3,
     icon: <DownloadIcon className="w-5 h-5 text-white" />,
-    title: "Download your image",
+    title: "3. Download your image",
     description: "Create an account to get started",
     link: "/",
   },
@@ -33,12 +33,10 @@ const WorkSection = () => {
   return (
     <div className="flex flex-col gap-4 w-full max-w-[1200px] mx-auto py-[60px] px-4">
       <div className="flex flex-col md:flex-row justify-between">
-        <div className="flex w-full flex-col">
+        <div className="flex w-full gap-2 sm:flex-row flex-col">
           <h1 className="text-white text-4xl font-semibold">How it works?</h1>
-          <div className="flex gap-2 md:flex-row flex-col justify-end items-center md:justify-between">
-            <p className="text-gray-400 text-lg w-1/3 mt-2">
-              Check out some of the amazing photos we've created for our users.
-            </p>
+          {/* <div className="flex gap-2 md:flex-row flex-col justify-end md:items-center md:justify-between"> */}
+            
             <Link
               href="/"
               className="bg-gradient-to-r from-[#21ACFD] to-[#2174FE] px-6 py-3 flex items-center justify-center gap-2 rounded-full text-white font-medium text-center transition-all hover:opacity-90"
@@ -46,7 +44,7 @@ const WorkSection = () => {
               Get Started
               <ArrowRightIcon className="w-4 h-4" />
             </Link>
-          </div>
+          {/* </div> */}
         </div>
       </div>
 

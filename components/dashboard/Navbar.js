@@ -20,16 +20,18 @@ const Navbar = () => {
     setLoading(true);
     const fetch =async() => {
       try {
-        console.log("fetching count",user);
+        console.log("fetching count", user);
+        console.log("response")
         const res =await axios.get(`/api/packages/${user?.userId || user._id}`);
+        console.log(res.data);
         if (!res.data?.name){
-          setCount(5);
-          setImageCount(5);
+          setCount(25);
+          setImageCount(25);
           return
         }
 
-        setCount(res.data.name === 'Premium' && res.data.images  );
-        setImageCount(res.data.name === 'Premium' && res.data.images  );
+        setCount(res.data.images  );
+        setImageCount(res.data.images  );
         localStorage.setItem("type", "subcriber")
         console.log(res.data);
         

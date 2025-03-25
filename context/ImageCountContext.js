@@ -17,17 +17,9 @@ export const ImageCountProvider = ({ children }) => {
         const userId = user?.userId || user._id;
         const res = await axios.get(`/api/packages/${userId}`);
         
-        if (!res.data?.name) {
-          setImageCount(5); // Default count
-          return;
-        }
         
-        const count = res.data.name === 'Premium' ? res.data.images : 5;
-        setImageCount(count);
-        
-        if (res.data.name === 'Premium') {
-          localStorage.setItem("type", "subscriber");
-        }
+        setImageCount(res.data.images);
+
       } catch (error) {
         console.error("Error fetching image count:", error);
         setImageCount(5); // Fallback count

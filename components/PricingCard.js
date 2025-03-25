@@ -20,6 +20,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
             UserId: user?.userId || user._id, 
             name: card.title,
             price: card.price,
+            images: card.images,
         });
 
         

@@ -17,10 +17,10 @@ const BadgeSection = () => {
 
         <div className="flex justify-end gap-4">
           <Link
-            href="/waitlist"
+            href="/"
             className="bg-white text-black px-4 py-2 rounded-lg"
           >
-            Try Now for Free
+            Start for Free
           </Link>
         </div>
       </div>

@@ -15,6 +15,8 @@ import axios from "axios";
 import { signIn } from "next-auth/react";
 import Notification from "@/components/Notification";
 import { useUser } from "@/context/UserContext";
+import Image from "next/image";
+import OTPVerification from "@/components/otp/VerifyOtp";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -30,14 +32,13 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const { login } = useUser();
+  const [showVerificationModal, setVerificationModal] = useState(false);
 
   const handleSignupWithGoogle = () => {
     signIn("google", { callbackUrl: "/" });
   };
 
-  const handleAppleLogin = () => {
-    signIn("apple", { callbackUrl: "/" });
-  };
+  
 
   const validateForm = () => {
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
@@ -69,6 +70,41 @@ const SignUp = () => {
     return true;
   };
 
+  // const handleSignUp = async () => {
+  //   if (!validateForm()) return;
+  //   setError(null);
+  //   setSuccess("");
+
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
+
+  //     const res = await axios.post("/api/auth/register", JSON.stringify(formData), {
+  //       headers: { "Content-Type": "application/json" },
+  //     });
+
+  //     if (res.status === 201) {
+  //       const loginRes = await axios.post("/api/auth/login", JSON.stringify({
+  //         email: formData.email,
+  //         password: formData.password,
+  //       }));
+
+  //       if (loginRes.status === 200) {
+  //         const { token } = loginRes.data;
+  //         login(token);
+  //       }
+
+  //       setSuccess("Account created successfully! Redirecting...");
+        
+  //     }
+  //   } catch (error) {
+  //     console.error("Error signing up:", error);
+  //     setError(error.response?.data?.message || "An error occurred. Please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSignUp = async () => {
     if (!validateForm()) return;
     setError(null);
@@ -76,29 +112,17 @@ const SignUp = () => {
 
     try {
       setLoading(true);
-      setError(null);
-
-      const res = await axios.post("/api/auth/register", JSON.stringify(formData), {
-        headers: { "Content-Type": "application/json" },
+      const response = await axios.post("/api/auth/send-otp", {
+        email: formData.email
       });
+      setVerificationModal(true);
 
-      if (res.status === 201) {
-        const loginRes = await axios.post("/api/auth/login", JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }));
-
-        if (loginRes.status === 200) {
-          const { token } = loginRes.data;
-          login(token);
-        }
-
-        setSuccess("Account created successfully! Redirecting...");
-        
+      if (response.status === 200) {
+        setSuccess("OTP sent to your email!");
+        setVerificationModal(true);
       }
     } catch (error) {
-      console.error("Error signing up:", error);
-      setError(error.response?.data?.message || "An error occurred. Please try again.");
+      setError(error.response?.data?.message || "Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -114,31 +138,15 @@ const SignUp = () => {
     <MainLayout>
       <div className="flex flex-col items-center justify-center px-4 pb-10 pt-[150px]">
         <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10  max-w-[600px] md:w-[700px] mx-auto">
-          <h1 className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] bg-clip-text text-transparent font-bold text-2xl">
-            Chronedo.AI
-          </h1>
+          <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
 
-          {/* {Error && (
-            <Notification
-              isOpen={true}
-              onClose={() => setSuccess("")}
-              title="Error"
-              message={error}
-              type="error"
-            />
-          )} */}
+          {
+            showVerificationModal && (
+              <OTPVerification formData={formData} />
+            )
+          }
 
-          {/* Success Notification */}
-          {success && (
-            <Notification
-              isOpen={true}
-              onClose={() => setSuccess("")}
-              title="Success"
-              message={success}
-              link="/dashboard"
-              type="success"
-            />
-          )}
+          
 
           {/* Error Notification */}
           {error && (

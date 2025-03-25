@@ -100,11 +100,11 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { href: "/", text: "Home" },
-    { href: "/about", text: "About" },
+    // { href: "/", text: "Home" },
+    // { href: "/about", text: "About" },
     // { href: "/pricing", text: "Pricing" },
-    { href: "/terms", text: "Terms" },
-    { href: "/privacy", text: "Privacy Policy" },
+    // { href: "/terms", text: "Terms" },
+    { href: "/signin", text: "Login" },
   ];
 
   return (
@@ -112,17 +112,20 @@ const Navbar = () => {
       initial="hidden"
       animate="visible"
       variants={navbarVariants}
-      className="flex bg-[#0D0B13] z-50 absolute top-10 left-0 w-full max-w-[800px] mx-auto right-0 justify-between items-center p-4 border border-[#0093E87D] rounded-full"
+      className="flex bg-[#000] z-50 absolute top-10 left-0 w-full max-w-[800px] mx-auto right-0 justify-between items-center p-4 border border-[#0093E87D] rounded-xl"
     >
-      <motion.div 
+      <motion.div
+         
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2 }}
       >
-        <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
+        <Link href="/">
+          <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
+        </Link>
       </motion.div>
 
       {/* Desktop Links */}
-      <div className="hidden md:flex gap-4 items-center bg-[#0D0B13]">
+      <div className="hidden md:flex gap-4 items-center ">
         {navLinks.map((link, index) => (
           <motion.div
             key={link.href}
@@ -156,11 +159,11 @@ const Navbar = () => {
         >
           {!user ? (
             <Link
-              href="/signin"
+              href="/signup"
               className="flex items-center gap-2 text-white px-4 py-2 bg-gradient-to-r from-[#21ACFD] to-[#2174FE] rounded-full cursor-pointer"
               onClick={() => setIsOpen(false)}
             >
-              Login / Sign up
+              Sign up
             </Link>
           ) : (
             <Link
@@ -235,11 +238,11 @@ const Navbar = () => {
             >
               {!user ? (
                 <Link
-                  href="/signin"
+                  href="/signup"
                   className="flex items-center gap-2 text-white px-4 py-2 bg-[#0D0B13] rounded-full cursor-pointer"
                   onClick={() => setIsOpen(false)}
                 >
-                  Login / Sign up
+                  Sign up
                 </Link>
               ) : (
                 <Link

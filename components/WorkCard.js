@@ -8,8 +8,8 @@ const WorkCard = ({ card }) => {
             {card.icon}
         </div>
         <h1 className="text-white text-2xl font-medium">{card.title}</h1>
-        <p className="text-gray-400 text-lg">{card.description}</p>
-        <Link href={card.link} className="flex items-center gap-2">Explore more <ArrowRightIcon className="w-4 h-4" /></Link>
+        {/* <p className="text-gray-400 text-lg">{card.description}</p>
+        <Link href={card.link} className="flex items-center gap-2">Explore more <ArrowRightIcon className="w-4 h-4" /></Link> */}
     </div>;
 };
 

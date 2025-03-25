@@ -13,7 +13,7 @@ const packageSchema = new mongoose.Schema({
     images: {
       type: Number,
       min: 0,
-      default: 50  
+      required: true,
     },
     price: {
         type: Number,

@@ -8,11 +8,11 @@ export async function POST(request) {
         await connectDB();
 
         
-        const { UserId, name, price } = await request.json();
+        const { UserId, name, price, images } = await request.json();
         console.log(UserId, name, price);
 
         // Validate the input
-        if (!UserId || !name || !price) {
+        if (!UserId || !name || !price, !images) {
             return NextResponse.json(
                 { error: "Missing required fields: userId, name, or price" },
                 { status: 400 }
@@ -23,6 +23,7 @@ export async function POST(request) {
         const newPackage = new Package({
             UserId: UserId,
             name,
+            images,
             price,
         });
 

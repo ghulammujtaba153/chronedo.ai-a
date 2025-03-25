@@ -6,6 +6,7 @@ import { useUser } from "@/context/UserContext";
 import { useImage } from "@/context/ImageContext"; // Import useImage
 import Notification from "../Notification";
 import { useImageCount } from "@/context/ImageCountContext";
+import { usePackage } from "@/context/PackageContext";
 
 const prompts = [
   {
@@ -56,6 +57,7 @@ const HeroSection = () => {
   const [customPrompt, setCustomPrompt] = useState("");
   const [randomSubmenuOpen, setRandomSubmenuOpen] = useState(false);
   const { imageCount, setImageCount } = useImageCount();
+  const {savePackage} =usePackage()
 
   const handlePromptClick = (prompt) => {
     if (prompt.name === "Random") {
@@ -100,91 +102,40 @@ const HeroSection = () => {
 
     setImage(URL.createObjectURL(selectedFile));
 
-    const userType = localStorage.getItem("type") || "user";
-    // const maxLimit = userType === "visitor" ? 3 : 15;
+     const userId = user?.userId || user._id;
+    const packageRes = await axios.get(`/api/packages/${userId}`);
+            
+      if (!packageRes.data?.name) {
+              savePackage({
+                UserId: user?.userId || user._id,
+                name: "Free",
+                price: "0",
+                images: 25,
+              })
+              setImageCount(25); // Default count for unverified subscribers
+              // throw new Error("Subscription not verified");
+            }
 
-    const maxLimit= imageCount;
-
-    if(userType === "subcriber"){
-      console.log("subscriber")
+            const availableCount = packageRes.data.images ;
+            setImageCount(availableCount);
+            setIsLoading(false);
       
-      if (imageCount <= 0) {
-        
-        setError("You have reached your image limit for this month.");
-        return;
-      }
-      try {
-        setImageCount(imageCount - 1);
-        const res = await axios.post("/api/packages/update-count", {
-          userId: user.userId || user._id,
-          count: -1,
-        });
-        console.log(res.data);
-      } catch (error) {
-        setError(error);
-        console.log(error);
-        return
-        
-      }
-      
-      await uploadToLightX(selectedFile);
-      handleTest(selectedFile);
+            if (availableCount <= 0) {
+              setErrorMessage("You've reached your image limit for this month.");
+              return; // Exit early to avoid processing
+            }
+            setImage(URL.createObjectURL(file));
+            setFile(file);
 
-    }else{
-      
-    // Get the current date in YYYY-MM-DD format
-    const currentDate = new Date().toISOString().split("T")[0];
-
-    // Retrieve the stored date and count from localStorage
-    const storedDate = localStorage.getItem("date");
-    let currentCount = parseInt(localStorage.getItem("count")) || 0;
-
-    console.log("local storage count", localStorage.getItem("count"));
-
-    console.log(storedDate);
-    console.log(currentDate);
-
-
-    // Reset the count if the date has changed
-    if (storedDate !== currentDate) {
-      currentCount = 0; // Reset count for the new day
-      localStorage.setItem("date", currentDate); // Update the stored date
-    }
-
-    if (currentCount < maxLimit) {
-      localStorage.setItem("count", currentCount + 1);
-      setImageCount(imageCount - 1)
-      try {
-        const res = await axios.post("/api/packages/update-count", {
-          userId: user.userId || user._id,
-          count: -1,
-        });
-        console.log(res.data);
-      } catch (error) {
-        setError(error);
-        console.log(error);
-        return
-        
-      }
       
       await uploadToLightX(selectedFile);
-      handleTest(selectedFile);
-      console.log("local storage count", localStorage.getItem("count"));
-    } else {
-      const errorMessage =
-        userType === "visitor"
-          ? "You have reached the maximum limit of 3 images. Please login to continue."
-          : "You have reached the maximum limit of 5 images. Please upgrade to PRO to continue.";
-      setError(errorMessage);
-      console.log("local storage count", localStorage.getItem("count"));
-    }
 
     }
     
 
 
     
-  };
+  
 
   const handleTest = (file) => {
     console.log("test");
@@ -319,7 +270,15 @@ const HeroSection = () => {
         if (data.status === "active") {
           console.log("Setting resultImage:", data.output); // Debugging
           setResultImage(data.output); // Update resultImage in ImageContext
+          if(user){
+            const updateRes = await axios.post("/api/packages/update-count", {
+              userId: user.userId || user._id,
+              count: -1,
+            });
+            setImageCount(imageCount- 1);
+          
           handleDBImage(data.output);
+        }
           return;
         } else if (data.status === "failed") {
           throw new Error("Background generation failed.");
