@@ -139,13 +139,13 @@ const Footer = () => {
         <div className="flex flex-col gap-4 cursor-pointer">
           <h1 className="text-white text-sm">Contact</h1>
           <p className="text-sm text-gray-400 hover:text-white flex items-center gap-2">
-            <MapIcon className="w-4 h-4 text-[#21ACFD]" /> lahore, pakistan
+            <MapIcon className="w-4 h-4 text-[#21ACFD]" /> Switzerland
           </p>
           <p className="text-sm text-gray-400 hover:text-white flex items-center gap-2">
-            <EnvelopeIcon className="w-4 h-4 text-[#21ACFD]" /> isla.dev@gmail.com
+            <EnvelopeIcon className="w-4 h-4 text-[#21ACFD]" /> info@chronedo.com
           </p>
           <p className="text-sm text-gray-400 hover:text-white flex items-center gap-2">
-            <PhoneIcon className="w-4 h-4 text-[#21ACFD]" /> +91 9876543210
+            <PhoneIcon className="w-4 h-4 text-[#21ACFD]" /> +41 79 687 55 22
           </p>
         </div>
       </div>

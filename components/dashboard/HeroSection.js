@@ -454,7 +454,7 @@ const HeroSection = () => {
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full text-gray-400">
-            <CloudUpload className=" w-[50%] h-[50%] md:w-full md:h-full" />
+            <img src="/watch2.png" alt="" className="w-full h-full rounded-xl object-cover" />
           </div>
         )}
       </div>
