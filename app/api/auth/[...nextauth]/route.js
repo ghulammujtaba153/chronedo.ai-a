@@ -137,7 +137,7 @@ const handler = NextAuth({
         },
         async session({ session, token }) {
             // Add user data to the session
-            session.user.id = token.id;
+            session.user.id = token.userId;
             session.user.name = token.name;
             session.user.email = token.email;
             session.user.image = token.image;

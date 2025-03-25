@@ -1,13 +1,13 @@
 "use client";
 import { EnvelopeIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import MainLayout from "@/layouts/mainLayout";
 import Notification from "@/components/Notification";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const ResetPassword = () => {
+const ResetPasswordContent = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [password, setPassword] = useState("");
@@ -15,9 +15,8 @@ const ResetPassword = () => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get("token"); // Extract token from URL
+  const token = searchParams.get("token");
 
-  // Ensure token exists before proceeding
   useEffect(() => {
     if (!token) {
       setError("Invalid or missing token. Please try again.");
@@ -64,56 +63,63 @@ const ResetPassword = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="flex w-full flex-col items-center justify-center px-4 pb-10 pt-[150px]">
-        <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10 max-w-[600px] md:w-[700px] mx-auto">
-          <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
+    <div className="flex w-full flex-col items-center justify-center px-4 pb-10 pt-[150px]">
+      <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10 max-w-[600px] md:w-[700px] mx-auto">
+        <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
 
-          {success && (
-            <Notification
-              isOpen={true}
-              onClose={() => setSuccess(false)}
-              title="Success"
-              message={success}
-              type="success"
-              link="/signin"
+        {success && (
+          <Notification
+            isOpen={true}
+            onClose={() => setSuccess(false)}
+            title="Success"
+            message={success}
+            type="success"
+            link="/signin"
+          />
+        )}
+
+        {error && (
+          <Notification
+            isOpen={true}
+            onClose={() => setError(false)}
+            title="Error"
+            message={error}
+            type="error"
+          />
+        )}
+
+        <div className="flex flex-col items-center justify-center gap-6 w-full mx-auto">
+          <div className="w-full flex items-center gap-3 border-2 border-gray-700 rounded-xl p-3 bg-transparent">
+            <EnvelopeIcon className="w-5 h-5 text-gray-500" />
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={password}
+              onKeyDown={handleKeyDown}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-transparent text-white placeholder-gray-500 outline-none"
             />
-          )}
-
-          {error && (
-            <Notification
-              isOpen={true}
-              onClose={() => setError(false)}
-              title="Error"
-              message={error}
-              type="error"
-            />
-          )}
-
-          <div className="flex flex-col items-center justify-center gap-6 w-full mx-auto">
-            {/* Password Input */}
-            <div className="w-full flex items-center gap-3 border-2 border-gray-700 rounded-xl p-3 bg-transparent">
-              <EnvelopeIcon className="w-5 h-5 text-gray-500" />
-              <input
-                type="password"
-                placeholder="Enter new password"
-                value={password}
-                onKeyDown={handleKeyDown}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-transparent text-white placeholder-gray-500 outline-none"
-              />
-            </div>
-
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full py-3 rounded-full bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white font-semibold cursor-pointer hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Resetting Password..." : "Reset Password"}
-            </button>
           </div>
+
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="w-full py-3 rounded-full bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white font-semibold cursor-pointer hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Resetting Password..." : "Reset Password"}
+          </button>
         </div>
       </div>
+    </div>
+  );
+};
+
+const ResetPassword = () => {
+  return (
+    <MainLayout>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ResetPasswordContent />
+      </Suspense>
     </MainLayout>
   );
 };
