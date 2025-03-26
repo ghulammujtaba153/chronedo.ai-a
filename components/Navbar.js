@@ -19,20 +19,20 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!user) return;
-    
+
     const fetchImageCount = async () => {
       try {
         const userId = user?.userId || user._id;
         const res = await axios.get(`/api/packages/${userId}`);
-        
+
         if (!res.data?.name) {
           setImageCount(5); // Default count
           return;
         }
-        
+
         const count = res.data.name === 'Premium' ? res.data.images : 5;
         setImageCount(count);
-        
+
         if (res.data.name === 'Premium') {
           localStorage.setItem("type", "subscriber");
         }
@@ -58,12 +58,12 @@ const Navbar = () => {
   // Navbar animation variants
   const navbarVariants = {
     hidden: { opacity: 0, y: -20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 0.6,
-        ease: "easeOut" 
+        ease: "easeOut"
       }
     }
   };
@@ -71,10 +71,10 @@ const Navbar = () => {
   // Link item animation variants
   const linkVariants = {
     hidden: { opacity: 0, y: -10 },
-    visible: i => ({ 
-      opacity: 1, 
+    visible: i => ({
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         delay: 0.1 * i,
         duration: 0.4
       }
@@ -83,14 +83,14 @@ const Navbar = () => {
 
   // Mobile menu animation variants
   const mobileMenuVariants = {
-    closed: { 
+    closed: {
       opacity: 0,
       scale: 0.95,
       transition: {
         duration: 0.3
       }
     },
-    open: { 
+    open: {
       opacity: 1,
       scale: 1,
       transition: {
@@ -107,19 +107,19 @@ const Navbar = () => {
     { href: "/signin", text: "Login" },
   ];
 
-  const handleLogout= ()=>{
+  const handleLogout = () => {
     logout();
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial="hidden"
       animate="visible"
       variants={navbarVariants}
       className="flex bg-[#000] z-50 absolute top-10 left-0 w-full max-w-[800px] mx-auto right-0 justify-between items-center p-4 border border-[#0093E87D] rounded-xl"
     >
       <motion.div
-         
+
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2 }}
       >
@@ -140,13 +140,12 @@ const Navbar = () => {
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.2 }}
           >
-            <Link 
-              href={link.href} 
-              className={`transition-colors duration-300 px-4 py-2 ${
-                pathname === link.href 
-                  ? "text-white font-medium" 
+            <Link
+              href={link.href}
+              className={`transition-colors duration-300 px-4 py-2 ${pathname === link.href
+                  ? "text-white font-medium"
                   : "text-gray-400 hover:text-white"
-              }`}
+                }`}
             >
               {link.text}
             </Link>
@@ -163,7 +162,7 @@ const Navbar = () => {
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.2 }}
           >
-            <p 
+            <p
               onClick={handleLogout}
               className={"cursor-pointer transition-colors duration-300 px-4 py-2 text-gray-400 hover:text-white"
               }
@@ -172,7 +171,7 @@ const Navbar = () => {
             </p>
           </motion.div>
         }
-        
+
         <motion.div
           custom={navLinks.length}
           initial="hidden"
@@ -234,7 +233,7 @@ const Navbar = () => {
             </motion.div>
           </div>
           <div className="flex text-white flex-col gap-4">
-            {navLinks.map((link, index) => (
+            {!user && navLinks.map((link, index) => (
               <motion.div
                 key={link.href}
                 initial={{ opacity: 0, x: -20 }}
@@ -243,18 +242,36 @@ const Navbar = () => {
               >
                 <Link
                   href={link.href}
-                  className={`block px-4 py-2 ${
-                    pathname === link.href 
-                    ? "text-white font-medium" 
-                    : "text-gray-200 hover:text-white"
-                  }`}
+                  className={`block px-4 py-2 ${pathname === link.href
+                      ? "text-white font-medium"
+                      : "text-gray-200 hover:text-white"
+                    }`}
                   onClick={() => setIsOpen(false)}
                 >
                   {link.text}
                 </Link>
               </motion.div>
             ))}
-            
+
+            {
+              user &&
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={linkVariants}
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <p
+                  onClick={handleLogout}
+                  className={"cursor-pointer transition-colors duration-300 px-4 py-2 hover-text-gray-800 text-white"
+                  }
+                >
+                  logout
+                </p>
+              </motion.div>
+            }
+
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}

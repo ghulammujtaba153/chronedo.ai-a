@@ -24,7 +24,7 @@ const Gallery = () => {
           </p>
         </motion.div>
 
-        <div className="w-full px-4 relative max-h-[800px]"> 
+        <div className="w-full px-4 relative max-h-[600px]"> 
           <GalleryCarousel />
         </div>
       </motion.div>

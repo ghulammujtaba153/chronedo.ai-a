@@ -106,6 +106,25 @@ const HeroSection = () => {
     }
   }, [selectedPrompt]);
 
+  const convertHeicToJpg = async (file) => {
+    try {
+      // Dynamically import the conversion library
+      const heic2any = (await import('heic2any')).default;
+      
+      // Convert HEIC to JPG
+      const result = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9
+      });
+      
+      return URL.createObjectURL(result);
+    } catch (err) {
+      console.error('Conversion error:', err);
+      throw new Error('Failed to convert image');
+    }
+  };
+
   const handleCustomPromptChange = (e) => {
     setCustomPrompt(e.target.value);
     // setSelectedPrompt(e.target.value);
@@ -116,6 +135,16 @@ const HeroSection = () => {
 
     const formData = new FormData();
       formData.append('file', file);
+
+      if (file.name.toLowerCase().endsWith('.heic') && 
+        file.name.toLowerCase().endsWith('.heif')) {
+          const imageUrl = await convertHeicToJpg(file);
+          
+          setImage(imageUrl);
+      return;
+    }
+
+      
 
       const response = await fetch('/api/convert', {
         method: 'POST',

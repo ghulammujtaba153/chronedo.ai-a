@@ -37,34 +37,34 @@ const GalleryCarousel = () => {
                 renderIndicator={() => null}
                 className="h-full"
             >
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/1.png" alt="Luxury Watch 1" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/2.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/3.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/4.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/5.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/6.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/7.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/8.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/9.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
-                <div className="h-[600px]">
+                <div className="max-h-[600px]">
                     <img src="/10.png" alt="Luxury Watch 2" className="object-contain h-full w-full" />
                 </div>
             </Carousel>
