@@ -12,7 +12,7 @@ import { useImageCount } from "@/context/ImageCountContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { setSession, user } = useUser();
+  const { setSession, user, logout } = useUser();
   const pathname = usePathname();
   const { data: session } = useSession();
   const { imageCount, setImageCount } = useImageCount();
@@ -107,6 +107,10 @@ const Navbar = () => {
     { href: "/signin", text: "Login" },
   ];
 
+  const handleLogout= ()=>{
+    logout();
+  }
+
   return (
     <motion.div 
       initial="hidden"
@@ -120,13 +124,13 @@ const Navbar = () => {
         transition={{ duration: 0.2 }}
       >
         <Link href="/">
-          <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
+          <Image src="/Chronedo_AI.png" alt="logo" width={200} height={100} />
         </Link>
       </motion.div>
 
       {/* Desktop Links */}
       <div className="hidden md:flex gap-4 items-center ">
-        {navLinks.map((link, index) => (
+        {!user && navLinks.map((link, index) => (
           <motion.div
             key={link.href}
             custom={index}
@@ -148,6 +152,26 @@ const Navbar = () => {
             </Link>
           </motion.div>
         ))}
+
+
+        {
+          user &&
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={linkVariants}
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <p 
+              onClick={handleLogout}
+              className={"cursor-pointer transition-colors duration-300 px-4 py-2 text-gray-400 hover:text-white"
+              }
+            >
+              logout
+            </p>
+          </motion.div>
+        }
         
         <motion.div
           custom={navLinks.length}

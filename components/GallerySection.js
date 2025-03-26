@@ -17,9 +17,9 @@ const Gallery = () => {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex flex-col items-center px-2 justify-center gap-2"
         >
-          <h1 className="text-white text-4xl font-semibold">Gallery</h1>
+          <h1 className="text-white text-4xl font-semibold">Inspiration</h1>
           <p className="text-gray-400 text-lg">
-            Check out some of the amazing photos we've created for our users.
+            Discover what Chronedo AI can do for your watch photos
           </p>
         </motion.div>
 

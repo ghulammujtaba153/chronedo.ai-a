@@ -17,8 +17,9 @@ import { toast } from "react-toastify";
 
 const menuItems = [
     { name: 'Home', icon: HomeIcon, href: '/dashboard', color: 'hover:bg-[#0066FF]' },
-    { name: 'My Subscriptions', icon: ClipboardDocumentListIcon, href: '/dashboard/subscriptions', color: 'hover:bg-[#0066FF]' },
+    { name: 'My Credits', icon: ClipboardDocumentListIcon, href: '/dashboard/subscriptions', color: 'hover:bg-[#0066FF]' },
     { name: 'Settings', icon: Cog6ToothIcon, href: '/dashboard/settings', color: 'hover:bg-[#0066FF]' },
+    { name: 'Contact', icon: ClipboardDocumentListIcon, href: '/dashboard/contact', color: 'hover:bg-[#0066FF]' },
 ];
 
 const Sidebar = () => {
@@ -60,7 +61,7 @@ const Sidebar = () => {
 
                 {/* Navigation */}
                 <nav className="flex-1 px-3 py-4 space-y-1">
-                    <img src="/Chronedo_AI.png" alt="Logo" width={120} height={120} className={`mx-auto -mt-4 mb-4 ${isOpen ? "block" : "hidden"}`}/>
+                    <img src="/Chronedo_AI.png" alt="Logo" width={220} height={120} className={`mx-auto -mt-4 mb-4 ${isOpen ? "block" : "hidden"}`}/>
 
                     {/* Menu Items */}
                     <div className="space-y-1">

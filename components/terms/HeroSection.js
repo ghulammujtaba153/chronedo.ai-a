@@ -26,9 +26,9 @@ const HeroSection = () => {
                         transition={{ duration: 0.8 }}
                         className="text-2xl sm:text-[35px] md:text-[65px] font-semibold"
                     >
-                        Terms & conditions
+                        Terms & Conditions
                     </motion.h1>
-                    <motion.h1 
+                    {/* <motion.h1 
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 0.2 }}
@@ -37,17 +37,17 @@ const HeroSection = () => {
                         <span className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] bg-clip-text text-transparent font-bold">
                             Chronedo.AI
                         </span>
-                    </motion.h1>
+                    </motion.h1> */}
                 </div>
 
-                <motion.p 
+                {/* <motion.p 
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
                     className="text-center mt-4 relative z-10"
                 >
                     Upload a watch photo & get a stunning <br /> background in seconds!
-                </motion.p>
+                </motion.p> */}
             </div>
         </div>
     );

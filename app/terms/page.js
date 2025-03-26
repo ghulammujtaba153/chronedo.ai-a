@@ -11,7 +11,7 @@ const Page = () => {
         <HeroSection />
 
         {/* Terms of Use Section */}
-        <div className="terms-conditions max-w-4xl mx-auto py-8 px-4 text-white">
+        <div className="terms-conditions max-w-[1200px] mx-auto py-8 px-4 text-white">
           <h1 className="text-3xl font-bold mb-6">Terms and Conditions</h1>
           <p className="mb-8"><strong>Effective Date:</strong> 24.03.2025</p>
 

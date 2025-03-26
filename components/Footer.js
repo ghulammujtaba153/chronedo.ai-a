@@ -50,7 +50,7 @@ const Footer = () => {
         {/* Column 1 */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <img src="/Chronedo_AI.png" alt="logo" className="w-30 h-10" />
+            <img src="/Chronedo_AI.png" alt="logo" width={150} height={50} className="w-30 h-10" />
             <p className="text-white text-sm">
               © 2025 Watch Background Generator. All rights reserved.
             </p>
@@ -104,7 +104,8 @@ const Footer = () => {
                         checked:bg-[#0093E8] checked:border-[#0093E8]" 
                 />
                 <label htmlFor="terms-checkbox" className="cursor-pointer ml-2">
-                  I agree with the <a href="/terms" className="text-[#0093E8] hover:underline">Terms & Conditions</a>
+                  
+                  I agree with the <Link href="/terms" className="text-[#0093E8] hover:underline">Terms & Conditions</Link>
                 </label>
               </div>}
 
@@ -115,13 +116,13 @@ const Footer = () => {
         <div className="flex flex-col gap-4 cursor-pointer">
           <h1 className="text-white text-sm">Quick Links</h1>
           <a href="https://www.chronedo-podcast.com" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-white">Chronedo Podcast</a>
-          <Link href="/about" className="text-sm text-gray-400 hover:text-white">Contact</Link>
-          <Link href="/pricing" className="text-sm text-gray-400 hover:text-white">Imprint</Link>
+          <Link href="/contact1" className="text-sm text-gray-400 hover:text-white">Contact</Link>
+          <Link href="/terms" className="text-sm text-gray-400 hover:text-white">Imprint</Link>
           <Link href="/terms" className="text-sm text-gray-400 hover:text-white">Terms & Conditions</Link>
           <Link href="/privacy" className="text-sm text-gray-400 hover:text-white">Privacy Policy</Link>
         </div>
 
-        {/* Column 3 */}
+        {/* Column 3
         <div className="flex flex-col gap-4 cursor-pointer">
           <h1 className="text-white text-sm">Services</h1>
           <p className="text-sm text-gray-400 hover:text-white">
@@ -133,9 +134,9 @@ const Footer = () => {
           <p className="text-sm text-gray-400 hover:text-white">
             Watch Background Generator
           </p>
-        </div>
+        </div> */}
 
-        {/* Column 4 */}
+        {/* Column 4
         <div className="flex flex-col gap-4 cursor-pointer">
           <h1 className="text-white text-sm">Contact</h1>
           <p className="text-sm text-gray-400 hover:text-white flex items-center gap-2">
@@ -147,7 +148,7 @@ const Footer = () => {
           <p className="text-sm text-gray-400 hover:text-white flex items-center gap-2">
             <PhoneIcon className="w-4 h-4 text-[#21ACFD]" /> +41 79 687 55 22
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

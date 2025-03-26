@@ -104,7 +104,7 @@ const SignIn = () => {
     <MainLayout>
       <div className="flex w-full flex-col items-center justify-center px-4 pb-10 pt-[150px]">
         <div className="flex flex-col items-center gap-4 border-2 border-[#0093E8] bg-[#0D0B13] rounded-3xl p-10 max-w-[600px] md:w-[700px] mx-auto">
-          <Image src="/Chronedo_AI.png" alt="logo" width={100} height={100} />
+          <Image src="/Chronedo_AI.png" alt="logo" width={230} height={100} />
 
           {success && (
             <Notification

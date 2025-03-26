@@ -67,7 +67,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
             
             <div className="flex items-center gap-2">
                 <p className="text-white text-4xl font-bold">{card.price == 0 ? "Free" : `$${card.price}`}</p>
-                <p className="text-gray-400 text-sm">\ Per {card.type}</p>
+                <p className="text-gray-400 text-sm">\ One-Time Payment</p>
             </div>
             <div className="flex flex-col py-2 gap-2">
                 <p className="text-white text-sm">Features</p>
@@ -91,7 +91,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                 } backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent disabled:cursor-not-allowed`}
             >
                 {
-                    currentPlan? "Current plan" : "Get Started"
+                    currentPlan? "Current plan" : "Buy now"
                 }
                 
             </button>}

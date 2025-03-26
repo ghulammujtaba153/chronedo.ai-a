@@ -15,7 +15,7 @@ const BadgeSection = () => {
           </p>
         </div>
 
-        <div className="flex justify-end gap-4">
+        <div className="flex justify-end gap-4 mt-4">
           <Link
             href="/"
             className="bg-white text-black px-4 py-2 rounded-lg"

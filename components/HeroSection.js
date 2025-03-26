@@ -8,6 +8,7 @@ import axios from "axios";
 import { useUser } from "@/context/UserContext";
 import EmailModal from "./EmailModal";
 import { usePackage } from "@/context/PackageContext";
+import Link from "next/link";
 
 const prompts = [
   {
@@ -559,7 +560,7 @@ const HeroSection = () => {
           {savingImage && (
             <p className="text-blue-300 mt-4">saving image ...</p>
           )}
-          {isLoading && <p className="text-blue-500 mt-4">Processing...</p>}
+          {isLoading && <p className="text-blue-500 mt-4">Processing… your image will be ready in a few seconds. Perfect time for a quick coffee sip ☕</p>}
           {isError && (
             <p className="text-red-500 mt-4">
               Error processing image. Try again.
@@ -616,7 +617,7 @@ const HeroSection = () => {
                 className="text-sm sm:text-base text-gray-300 cursor-pointer"
                 whileHover={{ color: "#fff" }}
               >
-                I agree with the <span className="text-[#21ACFD] hover:underline">terms and conditions</span>
+                I agree with the <Link href="/privacy" className="text-[#21ACFD] hover:underline">Privacy Policy</Link>
               </motion.label>
             </motion.div>
 
@@ -645,7 +646,7 @@ const HeroSection = () => {
             </div>
 
             {/* Conditional Rendering */}
-            {selectedPrompt?.name === "Random" && (
+            {/* {selectedPrompt?.name === "Random" && (
               <div className="mt-4 w-full max-w-md">
                 <select
                   value={randomPrompt}
@@ -655,7 +656,7 @@ const HeroSection = () => {
                   <option value={randomPrompt}>{randomPrompt}</option>
                 </select>
               </div>
-            )}
+            )} */}
 
             {selectedPrompt && selectedPrompt.name === "Custom Style" && (
               <div className="mt-4 w-full max-w-md">

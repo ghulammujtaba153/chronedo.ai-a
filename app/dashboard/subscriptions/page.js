@@ -12,21 +12,10 @@ const pricingCards = [
         price: "0",
         images: 5,
         features: [
-            { id: 1, feature: "25 credits" },
+            { id: 1, feature: "25 images" },
            
         ],
         type: "Monthly",
-    },
-    {
-        id: "price_1R4PjxPFeWozK4w0xh6lAuic",
-        title: "Pro",
-        description: "For the casual user",
-        price: "228",
-        features: [
-            { id: 1, feature: "1000 credits" },
-           
-        ],
-        type: "Yearly",
     },
     {
         id: "price_1R6Rv2PFeWozK4w0HhFXlo2c",
@@ -35,7 +24,7 @@ const pricingCards = [
         price: "19.99",
         images: 30,
         features: [
-            { id: 1, feature: "30 images per day" },
+            { id: 1, feature: "30 images" },
             
         ],
         type: "Monthly",
@@ -47,7 +36,7 @@ const pricingCards = [
         price: "39.99",
         images: 100,
         features: [
-            { id: 1, feature: "100 images " },
+            { id: 1, feature: "100 images" },
             
         ],
         type: "Monthly",
@@ -60,7 +49,7 @@ const pricingCards = [
         price: "139.99",
         images: 400,
         features: [
-            { id: 1, feature: "400 images " },
+            { id: 1, feature: "400 images" },
             
         ],
         type: "Monthly",
@@ -97,30 +86,12 @@ const Subscription = () => {
 
     return (
         <div className="flex flex-col items-center gap-4 w-full max-w-[1200px] mx-auto py-[60px] px-4">
-            <div className="flex items-center gap-4 bg-[#217DFE08] backdrop-blur-[70px] p-2 rounded-full w-fit mx-auto">
-                <p
-                    className={`text-lg font-normal px-4 py-2 cursor-pointer rounded-full transition-all ${
-                        activeTab === "Monthly" ? "bg-[#217DFE21] border border-[#217DFE] text-white" : "text-gray-400"
-                    }`}
-                    onClick={() => setActiveTab("Monthly")}
-                >
-                    Monthly
-                </p>
-
-                <p
-                    className={`text-lg font-normal px-4 py-2 cursor-pointer rounded-full transition-all ${
-                        activeTab === "Yearly" ? "bg-[#217DFE21] border border-[#217DFE] text-white" : "text-gray-400"
-                    }`}
-                    onClick={() => setActiveTab("Yearly")}
-                >
-                    Yearly
-                </p>
-            </div>
+            
 
             {/* Pricing cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
                 {pricingCards
-                    .filter((card) => card.type === activeTab)
+                    
                     .map((card) => (
                         <PricingCard
                             key={card.id}
