@@ -60,10 +60,11 @@ export const UserProvider = ({ children }) => {
     // Logout function
     const logout = async () => {
         localStorage.removeItem('token');
+        setUser(null);
         if (session){
             await signOut({ callbackUrl: '/signin' });
         }
-        setUser(null);
+        
         router.push('/signin');
     };
 
