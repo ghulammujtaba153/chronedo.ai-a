@@ -113,6 +113,23 @@ const HeroSection = () => {
 
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
+
+    const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/convert', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+      setImage(imageUrl);
+
     
     if (!file) return;
     
@@ -134,7 +151,7 @@ const HeroSection = () => {
 
         if (currentCount >= maxLimit) {
           setShowModal(true); // Show upgrade modal
-          setErrorMessage("Subscribe to our Monthly Plan!");
+          setErrorMessage("Buy credits to upload more images!");
           // setShowModal(true);
           return; // Exit early to prevent processing
         }
@@ -172,7 +189,7 @@ const HeroSection = () => {
         setIsLoading(false);
   
         if (availableCount <= 0) {
-          setErrorMessage("You've reached your image limit for this month.");
+          setErrorMessage("You've reached your image limit.");
           return; // Exit early to avoid processing
         }
         setImage(URL.createObjectURL(file));
