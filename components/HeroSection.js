@@ -62,7 +62,7 @@ const HeroSection = () => {
   const [randomPrompt, setRandomPrompt] = useState("");
   const { imageCount, setImageCount } = useImageCount();
   const { user } = useUser();
-  const [savingImage, setSavingImage]=useState(false);
+  const [savingImage, setSavingImage] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const { savePackage } = usePackage();
 
@@ -106,102 +106,109 @@ const HeroSection = () => {
     }
   }, [selectedPrompt]);
 
-  const convertHeicToJpg = async (file) => {
-    try {
-      // Dynamically import the conversion library
-      const heic2any = (await import('heic2any')).default;
-      
-      // Convert HEIC to JPG
-      const result = await heic2any({
-        blob: file,
-        toType: 'image/jpeg',
-        quality: 0.9
-      });
-      
-      return URL.createObjectURL(result);
-    } catch (err) {
-      console.error('Conversion error:', err);
-      throw new Error('Failed to convert image');
-    }
-  };
-
   const handleCustomPromptChange = (e) => {
     setCustomPrompt(e.target.value);
     // setSelectedPrompt(e.target.value);
   };
 
+
+  const convertHeicToJpg = async (file, maxSizeKB = 1024) => { // Default 1MB max
+    try {
+      const heic2any = (await import('heic2any')).default;
+
+      // First conversion (full quality)
+      let result = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9 // Start with high quality
+      });
+
+      // Check size and reduce if needed
+      let blob = result;
+      let quality = 0.9;
+      let attempts = 0;
+
+      while (blob.size > maxSizeKB * 1024 && attempts < 5) {
+        quality -= 0.15; // Reduce quality in steps
+        result = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: Math.max(quality, 0.3) // Never go below 0.3 quality
+        });
+        blob = result;
+        attempts++;
+      }
+
+      if (blob.size > maxSizeKB * 1024) {
+        // Final fallback - resize dimensions
+        const img = await createImageBitmap(blob);
+        const canvas = document.createElement('canvas');
+        const scale = Math.sqrt((maxSizeKB * 1024) / blob.size);
+
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        blob = await new Promise(resolve => {
+          canvas.toBlob(resolve, 'image/jpeg', 0.7);
+        });
+      }
+
+      return blob;
+    } catch (err) {
+      console.error('Conversion error:', err);
+      throw new Error('Failed to convert and optimize image');
+    }
+  };
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
 
-    const formData = new FormData();
-      formData.append('file', file);
-
-      if (file.name.toLowerCase().endsWith('.heic') && 
-        file.name.toLowerCase().endsWith('.heif')) {
-          const imageUrl = await convertHeicToJpg(file);
-          
-          setImage(imageUrl);
-      return;
-    }
-
-      
-
-      const response = await fetch('/api/convert', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      const blob = await response.blob();
-      const imageUrl = URL.createObjectURL(blob);
-      setImage(imageUrl);
-
-    
     if (!file) return;
-    
+
     var userType;
     console.log("processing images, finding,user:", user)
 
-    if (!user){
-       userType = "visitor";
+    if (!user) {
+      userType = "visitor";
 
-       console.log("Processing as visitor");
-        // Visitor/Non-subscriber logic
-        const maxLimit = 5;
-        
-        let currentCount = parseInt(localStorage.getItem("count")) || 0;
-        console.log("currentCount", currentCount);
+      console.log("Processing as visitor");
+      // Visitor/Non-subscriber logic
+      const maxLimit = 5;
 
-  
-        // Check limits
+      let currentCount = parseInt(localStorage.getItem("count")) || 0;
+      console.log("currentCount", currentCount);
 
-        if (currentCount >= maxLimit) {
-          setShowModal(true); // Show upgrade modal
-          setErrorMessage("Buy credits to upload more images!");
-          // setShowModal(true);
-          return; // Exit early to prevent processing
-        }
-         
-  
-        // Process file
-        localStorage.setItem("count", currentCount + 1);
-        setImage(URL.createObjectURL(file));
-        setFile(file);
-        console.log("File processed. Daily count:", currentCount + 1);
+      // Check limits
+
+      if (currentCount >= maxLimit) {
+        setShowModal(true); // Show upgrade modal
         return;
+      }
+
+      if (file.name.toLowerCase().endsWith('.heic')) {
+        const jpgUrl = await convertHeicToJpg(file);
+        setImage(URL.createObjectURL(jpgUrl));
+        setFile(jpgUrl);
+        // setErrorMessage('uploaded a HEIC/HEIF file');
+        return;
+      }
+      setImage(URL.createObjectURL(file));
+      setFile(file);
+
+      return;
     }
-    else{
+    else {
       try {
         console.log("Processing as subscriber");
         setIsLoading(true);
-        
+
         // Verify subscription status
         const userId = user?.userId || user._id;
         const packageRes = await axios.get(`/api/packages/${userId}`);
-        
+
         if (!packageRes.data?.name) {
           savePackage({
             UserId: user?.userId || user._id,
@@ -213,10 +220,10 @@ const HeroSection = () => {
           // throw new Error("Subscription not verified");
         }
 
-        const availableCount = packageRes.data.images ;
+        const availableCount = packageRes.data.images;
         setImageCount(availableCount);
         setIsLoading(false);
-  
+
         if (availableCount <= 0) {
           setErrorMessage("You've reached your image limit.");
           return; // Exit early to avoid processing
@@ -225,35 +232,106 @@ const HeroSection = () => {
         setFile(file);
 
 
-        
-  
-    } catch (error) {
-      console.error("File processing error:", error);
-      setErrorMessage(error.message);
-      if (userType === "subscriber") {
-        // Revert count if update failed
-        setImageCount(imageCount + 1);
+
+
+      } catch (error) {
+        console.error("File processing error:", error);
+        setErrorMessage(error.message);
+        if (userType === "subscriber") {
+          // Revert count if update failed
+          setImageCount(imageCount + 1);
+        }
+      } finally {
+        setIsLoading(false);
       }
-    }finally{
-      setIsLoading(false);
+
+
     }
 
-      
-    }
-  
-    
+
     console.log("userType:", userType, "Selected file:", file.name);
-  
-    
+
+
   };
 
   const handleDrop = async (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) {
-      setFile(file);
+    if (!file) {
+      setErrorMessage("upload image");
+    }
+
+    if (!user) {
+      userType = "visitor";
+
+      console.log("Processing as visitor");
+      const maxLimit = 5;
+
+      let currentCount = parseInt(localStorage.getItem("count")) || 0;
+      console.log("currentCount", currentCount);
+
+      if (currentCount >= maxLimit) {
+        setShowModal(true);
+        return;
+      }
+
+      if (file.name.toLowerCase().endsWith('.heic')) {
+        const jpgUrl = await convertHeicToJpg(file);
+        setImage(URL.createObjectURL(jpgUrl));
+        setFile(jpgUrl);
+        // setErrorMessage('uploaded a HEIC file');
+        return;
+      }
       setImage(URL.createObjectURL(file));
-      // await uploadToLightX(file); // Trigger the upload
+      setFile(file);
+
+      return;
+    }
+    else {
+      try {
+        console.log("Processing as subscriber");
+        setIsLoading(true);
+
+        // Verify subscription status
+        const userId = user?.userId || user._id;
+        const packageRes = await axios.get(`/api/packages/${userId}`);
+
+        if (!packageRes.data?.name) {
+          savePackage({
+            UserId: user?.userId || user._id,
+            name: "Free",
+            price: "0",
+            images: 25,
+          })
+          setImageCount(25);
+        }
+
+        const availableCount = packageRes.data.images;
+        setImageCount(availableCount);
+        setIsLoading(false);
+
+        if (availableCount <= 0) {
+          setErrorMessage("You've reached your image limit.");
+          return; // Exit early to avoid processing
+        }
+        setImage(URL.createObjectURL(file));
+        setFile(file);
+
+
+
+
+      } catch (error) {
+        console.error("File processing error:", error);
+        setErrorMessage(error.message);
+        if (userType === "subscriber") {
+          // Revert count if update failed
+          setImageCount(imageCount + 1);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+
+
     }
   };
 
@@ -383,7 +461,7 @@ const HeroSection = () => {
   const pollForResult = async (orderId) => {
     const pollInterval = 3000; // Poll every 3 seconds
     const maxAttempts = 5; // Maximum number of retries
-    
+
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
@@ -400,23 +478,26 @@ const HeroSection = () => {
 
         if (data.status === "active") {
           setResultImage(data.output); // Set the result image URL
-          if(user){
-              const updateRes = await axios.post("/api/packages/update-count", {
-                userId: user.userId || user._id,
-                count: -1,
-              });
-              setImageCount(imageCount- 1);
-            
+          if (user) {
+            const updateRes = await axios.post("/api/packages/update-count", {
+              userId: user.userId || user._id,
+              count: -1,
+            });
+            setImageCount(imageCount - 1);
+
             handleDBImage(data.output);
+          } else {
+            const currentCount = localStorage.getItem("count");
+            localStorage.setItem("count", currentCount + 1);
           }
-          
+
           return;
         } else if (data.status === "failed") {
           throw new Error("Background generation failed.");
         }
       } catch (error) {
         console.error("Error fetching result:", error);
-        
+
         setErrorMessage("Error fetching result:", error);
       }
 
@@ -435,20 +516,20 @@ const HeroSection = () => {
 
 
   const handleDBImage = async (output) => {
-      try {
-        console.log(user);
-        setSavingImage(true);
-        const res = await axios.post("/api/image", {
-          userId: user?.userId || user?._id,
-          imageUrl: output,
-        });
-        console.log("Image saved:", res.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setSavingImage(false);
-      }
-    };
+    try {
+      console.log(user);
+      setSavingImage(true);
+      const res = await axios.post("/api/image", {
+        userId: user?.userId || user?._id,
+        imageUrl: output,
+      });
+      console.log("Image saved:", res.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSavingImage(false);
+    }
+  };
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center px-4 pb-[100px] pt-[200px]">
@@ -466,7 +547,7 @@ const HeroSection = () => {
       <EmailModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        
+
       />
 
       <div className="relative flex flex-col items-center justify-center max-w-[1200px] mx-auto">
@@ -656,7 +737,7 @@ const HeroSection = () => {
                   className="w-4 h-4 border-2 border-[#0093E8] rounded-md bg-transparent checked:bg-[#0093E8] checked:border-[#0093E8] focus:outline-none cursor-pointer"
                 />
 
-                
+
               </motion.div>
               <motion.label
                 htmlFor="terms-checkbox"
@@ -682,8 +763,8 @@ const HeroSection = () => {
                     delay: 0.1 * index
                   }}
                   className={`px-4 py-2 mx-2 rounded-md cursor-pointer hover:bg-gradient-to-r from-[#21ABFD] to-[#0055DE] hover:text-white ${selectedPrompt === prompt
-                      ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
-                      : "bg-gray-800 text-white"
+                    ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
+                    : "bg-gray-800 text-white"
                     }`}
                 >
                   {prompt.name}
