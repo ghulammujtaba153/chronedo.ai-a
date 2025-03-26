@@ -111,7 +111,7 @@ const Navbar = () => {
                   className="block py-2 text-white hover:text-gray-700"
                   onClick={() => setBar(false)}
                 >
-                  My Subscriptions
+                  My Credits
                 </Link>
                 <Link
                   href="/dashboard/settings"

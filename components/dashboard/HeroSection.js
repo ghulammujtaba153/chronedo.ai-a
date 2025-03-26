@@ -343,7 +343,7 @@ const HeroSection = () => {
               <UploadIcon className="w-4 h-4" />
             </label>
           </div>
-          <Link href="/login">Upgrade Pro</Link>
+          <Link href="/dashboard/subscriptions">Upgrade Pro</Link>
         </div>
 
         {/* Prompt Tabs - Only shown after image upload */}

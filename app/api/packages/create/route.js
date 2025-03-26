@@ -7,16 +7,26 @@ export async function POST(request) {
     try {
         await connectDB();
 
-        
         const { UserId, name, price, images } = await request.json();
         console.log(UserId, name, price);
 
-        // Validate the input
+        
         if (!UserId || !name || !price, !images) {
             return NextResponse.json(
                 { error: "Missing required fields: userId, name, or price" },
                 { status: 400 }
             );
+        }
+
+        const pack=await Package.findOne({ UserId: UserId }).sort({ createdAt: -1 }).limit(1);
+        console.log("old", pack);
+        console.log("new", images);
+
+        if (pack) {
+            pack.name = name;
+            pack.images += images;
+            await pack.save();
+            return NextResponse.json(pack, { status: 201 });
         }
 
         
@@ -27,7 +37,6 @@ export async function POST(request) {
             price,
         });
 
-        // Save the package to the database
         await newPackage.save();
 
         // Return the created package
