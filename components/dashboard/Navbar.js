@@ -120,6 +120,13 @@ const Navbar = () => {
                 >
                   Settings
                 </Link>
+                <Link
+                  href="/dashboard/contact"
+                  className="block py-2 text-white hover:text-gray-700"
+                  onClick={() => setBar(false)}
+                >
+                  Contact
+                </Link>
                 <button
                   className="block py-2 text-white hover:text-gray-700 cursor-pointer"
                   onClick={handleLogout}
