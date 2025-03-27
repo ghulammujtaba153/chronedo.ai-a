@@ -38,9 +38,9 @@ const Navbar = () => {
           return
         }
 
-        setCount(res.data.images  );
-        setImageCount(res.data.images  );
-        localStorage.setItem("type", "subcriber")
+        setCount(res.data?.images  );
+        setImageCount(res.data?.images  );
+        // localStorage.setItem("type", "subcriber")
         console.log(res.data);
         
       } catch (error) {

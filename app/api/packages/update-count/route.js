@@ -24,11 +24,23 @@ export async function POST(request) {
     
 
     // Find the user's package and update the count
-    const updatedPackage = await Package.findOneAndUpdate(
-      { UserId:userId },
-      { $inc: { images: count } }, // Decrement the count
-      { new: true }
+    const latestPackage = await Package.findOne({ UserId: userId })
+    .sort({ createdAt: -1 }); // Find the latest document
+
+    if (!latestPackage) {
+      return NextResponse.json(
+        { error: "Package not found for the user" },
+        { status: 404 }
+      );
+    }
+
+    const updatedPackage = await Package.findByIdAndUpdate(
+        latestPackage._id,
+        { $inc: { images: count } },
+        { new: true }
     );
+
+
 
     if (!updatedPackage) {
       return NextResponse.json(

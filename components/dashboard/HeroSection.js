@@ -327,15 +327,15 @@ const HeroSection = () => {
 
         if (data.status === "active") {
           setResultImage(data.output); // Set the result image URL
-          if (user) {
+          
             const updateRes = await axios.post("/api/packages/update-count", {
               userId: user.userId || user._id,
               count: -1,
             });
+            console.log("update the user count",updateRes.data)
             setImageCount(imageCount - 1);
 
             handleDBImage(data.output);
-          }
 
           return;
         } else if (data.status === "failed") {
