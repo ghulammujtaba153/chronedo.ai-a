@@ -42,13 +42,13 @@ const SignIn = () => {
     signIn("apple", { callbackUrl: "/" }); // Redirect to /dashboard
   };
 
-  useEffect(() => {
-    if (session) {
-      console.log("Session data:", session);
-      // Store the token in localStorage
-      localStorage.setItem("token", session.customToken);
-    }
-  }, [session]);
+  // useEffect(() => {
+  //   if (session) {
+  //     console.log("Session data:", session);
+  //     // Store the token in localStorage
+  //     localStorage.setItem("token", session.customToken);
+  //   }
+  // }, [session]);
 
   const handleSubmit = async () => {
     try {
