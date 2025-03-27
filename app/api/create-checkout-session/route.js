@@ -16,9 +16,10 @@ export async function POST(request) {
           quantity: 1,
         },
       ],
-      mode: "subscription", // or "payment" for one-time payments
+      mode: "payment", // or "subscription" for every month payments
       success_url: `${request.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.headers.get("origin")}/cancel`,
+      metadata: packageDetails,  // Attach package details as metadata
     });
 
     return new Response(JSON.stringify({ id: session.id }), {

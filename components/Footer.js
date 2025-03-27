@@ -105,7 +105,7 @@ const Footer = () => {
                 />
                 <label htmlFor="terms-checkbox" className="cursor-pointer ml-2">
                   
-                  I agree with the <Link href="/terms" className="text-[#0093E8] hover:underline">Terms & Conditions</Link>
+                  I agree with the <Link href="/privacy" className="text-[#0093E8] hover:underline">Privacy Policy</Link>
                 </label>
               </div>}
 

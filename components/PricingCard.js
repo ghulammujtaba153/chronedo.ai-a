@@ -31,7 +31,12 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ priceId: card.id }), 
+          body: JSON.stringify({ priceId: card.id, packageDetails: {
+            UserId: user?.userId || user._id,
+            name: card.title,
+            price: card.price,
+            images: card.images,
+        } }), 
         });
       
         const session = await response.json();
@@ -67,7 +72,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
             
             <div className="flex items-center gap-2">
                 <p className="text-white text-4xl font-bold">{card.price == 0 ? "Free" : `$${card.price}`}</p>
-                <p className="text-gray-400 text-sm">\ One-Time Payment</p>
+                <p className="text-gray-400 text-sm"> One-Time Payment</p>
             </div>
             <div className="flex flex-col py-2 gap-2">
                 <p className="text-white text-sm">Features</p>
@@ -81,22 +86,16 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                     </li>
                 ))}
             </ul>
-            {!currentPlan && <button 
+            <button 
                 onClick={handleCheckout}
                 disabled={loading} 
-                className={`text-white text-lg font-semibold my-4 cursor-pointer border ${
-                    currentPlan 
-                        ? "bg-gradient-to-r from-[#21ACFD] to-[#2174FE] border-transparent" 
-                        : "border-gray-700 bg-[#217DFE08]"
-                } backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent disabled:cursor-not-allowed`}
+                className={`text-white text-lg font-semibold my-4 cursor-pointer border border-gray-700 bg-[#217DFE08]
+                backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent disabled:cursor-not-allowed`}
             >
-                {
-                    currentPlan? "Current plan" : "Buy now"
-                }
-                
-            </button>}
+                 Buy now
+            </button>
 
-            {currentPlan && <button 
+            {/* {currentPlan && <button 
                 // onClick={handleCheckout} 
                 className={`text-white text-lg font-semibold my-4 border ${
                     currentPlan 
@@ -108,7 +107,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                     currentPlan? "Current plan" : "Get Started"
                 }
                 
-            </button>}
+            </button>} */}
 
         </div>
     );

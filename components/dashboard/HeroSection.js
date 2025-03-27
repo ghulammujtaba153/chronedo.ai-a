@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { CloudUpload, DownloadIcon, UploadIcon } from "lucide-react";
+import { ArrowUpCircleIcon, DownloadIcon } from "@heroicons/react/24/outline";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import axios from "axios";
 import { useUser } from "@/context/UserContext";
@@ -7,7 +8,7 @@ import { useImage } from "@/context/ImageContext";
 import Notification from "../Notification";
 import { useImageCount } from "@/context/ImageCountContext";
 import { usePackage } from "@/context/PackageContext";
-import { motion } from "framer-motion";
+
 
 const prompts = [
   {
@@ -44,7 +45,12 @@ const prompts = [
   }
 ];
 
+const handleDrop = (e) => {
+
+}
+
 const HeroSection = () => {
+  // Keep all your existing state variables
   const [file, setFile] = useState(null);
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
@@ -59,16 +65,15 @@ const HeroSection = () => {
   const { imageCount, setImageCount } = useImageCount();
   const { savePackage } = usePackage();
 
+
   const handlePromptClick = (prompt) => {
     if (prompt.name === "Random") {
       // Automatically select a random option
       const options = prompt.prompt.split(", ");
       const randomIndex = Math.floor(Math.random() * options.length);
       setRandomPrompt(options[randomIndex]);
-      setSelectedPrompt({
-        name: `Random: ${options[randomIndex]}`,
-        prompt: options[randomIndex]
-      });
+      console.log(options[randomIndex])
+      setSelectedPrompt(prompt);
     } else {
       setSelectedPrompt(prompt);
       setRandomPrompt("");
@@ -77,6 +82,70 @@ const HeroSection = () => {
 
   const handleCustomPromptChange = (e) => {
     setCustomPrompt(e.target.value);
+  };
+
+
+  // Set initial random prompt
+  useEffect(() => {
+    if (selectedPrompt?.name === "Random") {
+      const options = prompts.find(p => p.name === "Random").prompt.split(", ");
+      const randomIndex = Math.floor(Math.random() * options.length);
+      setRandomPrompt(options[randomIndex]);
+    } else {
+      setRandomPrompt("");
+    }
+  }, [selectedPrompt]);
+
+
+  const convertHeicToJpg = async (file, maxSizeKB = 1024) => { // Default 1MB max
+    try {
+      const heic2any = (await import('heic2any')).default;
+
+      // First conversion (full quality)
+      let result = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9 // Start with high quality
+      });
+
+      // Check size and reduce if needed
+      let blob = result;
+      let quality = 0.9;
+      let attempts = 0;
+
+      while (blob.size > maxSizeKB * 1024 && attempts < 5) {
+        quality -= 0.15; // Reduce quality in steps
+        result = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: Math.max(quality, 0.3) // Never go below 0.3 quality
+        });
+        blob = result;
+        attempts++;
+      }
+
+      if (blob.size > maxSizeKB * 1024) {
+        // Final fallback - resize dimensions
+        const img = await createImageBitmap(blob);
+        const canvas = document.createElement('canvas');
+        const scale = Math.sqrt((maxSizeKB * 1024) / blob.size);
+
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        blob = await new Promise(resolve => {
+          canvas.toBlob(resolve, 'image/jpeg', 0.7);
+        });
+      }
+
+      return blob;
+    } catch (err) {
+      console.error('Conversion error:', err);
+      throw new Error('Failed to convert and optimize image');
+    }
   };
 
   const handleFileChange = async (e) => {
@@ -88,6 +157,7 @@ const HeroSection = () => {
     setRandomPrompt("");
     const selectedFile = e.target.files[0];
 
+
     setError(null);
 
     if (!selectedFile) return;
@@ -97,6 +167,14 @@ const HeroSection = () => {
 
     if (availableCount <= 0) {
       setError("You've reached your image limit.");
+      return;
+    }
+
+    if (selectedFile.name.toLowerCase().endsWith('.heic')) {
+      const jpgUrl = await convertHeicToJpg(file);
+      setImage(URL.createObjectURL(jpgUrl));
+      setFile(jpgUrl);
+      // setErrorMessage('uploaded a HEIC/HEIF file');
       return;
     }
 
@@ -232,7 +310,7 @@ const HeroSection = () => {
   const pollForResult = async (orderId) => {
     const pollInterval = 3000; // Poll every 3 seconds
     const maxAttempts = 5; // Maximum number of retries
-    
+
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       try {
@@ -249,16 +327,16 @@ const HeroSection = () => {
 
         if (data.status === "active") {
           setResultImage(data.output); // Set the result image URL
-          if(user){
-              const updateRes = await axios.post("/api/packages/update-count", {
-                userId: user.userId || user._id,
-                count: -1,
-              });
-              setImageCount(imageCount- 1);
-            
+          if (user) {
+            const updateRes = await axios.post("/api/packages/update-count", {
+              userId: user.userId || user._id,
+              count: -1,
+            });
+            setImageCount(imageCount - 1);
+
             handleDBImage(data.output);
           }
-          
+
           return;
         } else if (data.status === "failed") {
           throw new Error("Background generation failed.");
@@ -301,193 +379,233 @@ const HeroSection = () => {
 
 
   return (
-    <div className="flex flex-col md:flex-row justify-between bg-[#217DFE0F] p-6 gap-4 rounded-xl border border-[#0093E87D]">
-      {error && (
-        <Notification
-          isOpen={true}
-          onClose={() => setError("")}
-          title="Error"
-          message={error}
-          type="error"
-        />
-      )}
-      
-      {/* Left Section */}
-      <div className="flex flex-col w-full md:w-1/2 space-y-4 leading-wide">
-        <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-white">
-          Transform Your Watch <br /> Photos with
-          <span className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] bg-clip-text text-transparent font-bold">
-            Chronedo.AI
-          </span>
-        </h1>
-        <p className="text-gray-500">
-          Upload a watch photo & get a stunning <br /> background in seconds!
-        </p>
-
-        {/* Upload Button */}
-        <div className="flex items-center gap-4">
-          <div>
-            <input
-              type="file"
-              id="file-upload"
-              className="hidden"
-              onChange={handleFileChange}
-              accept="image/*"
-              aria-label="Upload a watch photo"
-            />
-            <label
-              htmlFor="file-upload"
-              className="cursor-pointer bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white px-4 py-2 rounded-full flex items-center gap-2"
-            >
-              Upload
-              <UploadIcon className="w-4 h-4" />
-            </label>
-          </div>
-          <Link href="/dashboard/subscriptions">Upgrade Pro</Link>
-        </div>
-
-        {/* Prompt Tabs - Only shown after image upload */}
-        {file && (
-          <motion.div
+    <div className=" w-full flex flex-col items-center justify-center mx-auto">
+      {/* Content Section */}
+      {/* <div className="flex flex-col justify-center gap-1 text-white relative">
+          <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-4"
+            transition={{ duration: 0.8 }}
+            className="text-lg italic sm:text-[35px] md:text-[55px] font-normal leading-tight"
           >
-            <h3 className="text-white mb-2">Select a style:</h3>
-            <div className="flex flex-wrap gap-2">
-              {prompts.map((prompt, index) => (
-                <motion.button
-                  key={index}
-                  onClick={() => handlePromptClick(prompt)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`px-3 py-2 text-sm rounded-md cursor-pointer ${
-                    selectedPrompt?.name.startsWith(prompt.name)
-                      ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
-                      : "bg-gray-800 text-white"
-                  }`}
-                >
-                  {prompt.name}
-                </motion.button>
-              ))}
-            </div>
+            It's Free:
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-lg sm:text-[35px] md:text-[55px] font-semibold leading-tight"
+          >
+            One-Click Background Perfection for Your Watch Photos
+          </motion.h1>
+        </div> */}
 
-            {/* Custom Prompt Input (shown when Custom is selected) */}
-            {selectedPrompt?.name === "Custom" && (
-              <div className="mt-4">
-                <textarea
-                  value={customPrompt}
-                  onChange={handleCustomPromptChange}
-                  className="w-full p-3 border border-[#0093E8] bg-[#0D0B13] text-white rounded-md focus:ring-2 focus:ring-[#21ACFD]"
-                  placeholder="Describe your custom background..."
-                  rows={3}
-                />
-                <button
-                  onClick={() => {
-                    if (customPrompt.trim()) {
-                      setSelectedPrompt({
-                        name: "Custom",
-                        prompt: customPrompt
-                      });
-                    }
-                  }}
-                  className="mt-2 bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white px-4 py-2 rounded-md"
-                >
-                  Apply Custom Prompt
-                </button>
-              </div>
-            )}
+      <motion.p
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="text-center mt-4 relative z-10"
+      >
+        Upload a watch photo & get a stunning <br /> background in seconds!
+      </motion.p>
 
-            {/* Selected Prompt Display */}
-            {/* {selectedPrompt && (
-              <div className="mt-4 p-3 bg-gray-800 rounded-md">
-                <p className="text-white">
-                  <span className="text-gray-400">Selected style:</span> {selectedPrompt.name}
-                </p>
-                {selectedPrompt.name.startsWith("Random: ") && (
-                  <p className="text-gray-300 text-sm mt-1">
-                    Randomly selected: {selectedPrompt.prompt}
-                  </p>
-                )}
-              </div>
-            )} */}
+      {/* Image Upload Area */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.7,
+          delay: 0.6,
+          type: "spring",
+          stiffness: 120
+        }}
+        className="flex flex-col w-full items-center justify-center mt-4 px-4 py-4 
+            border-2 border-gray-900
+            bg-gradient-to-r from-gray-500 to-[#151515]/60 
+            backdrop-blur-lg 
+            rounded-[40px] w-full min-h-[170px] 
+            relative z-10"
+        onDrop={handleDrop}
+        onDragOver={(e) => e.preventDefault()}
+      >
+        <p className="text-[#2174FE] font-bold text-normal">
+          Upload Watch Photo
+        </p>
 
-            {/* Terms Checkbox and Apply Button */}
-            <div className="mt-6 flex flex-col gap-4">
-              <div className="flex items-center gap-3 border bg-[#0B1018] border-[#0093E840] rounded-xl px-4 py-3">
-                <input
-                  type="checkbox"
-                  id="terms-checkbox"
-                  className="w-4 h-4 border-2 border-[#0093E8] rounded-md bg-transparent checked:bg-[#0093E8] checked:border-[#0093E8] focus:outline-none cursor-pointer"
-                />
-                <label htmlFor="terms-checkbox" className="text-sm text-gray-300 cursor-pointer">
-                  I agree with the <Link href="/privacy" className="text-[#21ACFD] hover:underline">Privacy Policy</Link>
-                </label>
-              </div>
+        <p className="text-[#8491A0] font-bold text-sm sm:text-base my-4">
+          Drag and drop your image here
+        </p>
 
-              <motion.button
-                onClick={() => uploadToLightX(file)}
-                disabled={isLoading || !selectedPrompt}
-                className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white px-12 py-3 rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {isLoading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
-                  </span>
-                ) : (
-                  "Apply Style"
-                )}
-              </motion.button>
-            </div>
+        {error && (
+          <Notification
+            isOpen={true}
+            onClose={() => setError("")}
+            title="Error"
+            message={error}
+            type="error"
+          />
+        )}
+
+        <input
+          id="file-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <motion.label
+          htmlFor="file-upload"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex items-center gap-2 sm:text-lg text-sm text-white px-6 py-3 bg-gradient-to-r from-[#21ACFD] to-[#2174FE] rounded-full cursor-pointer transition-all hover:opacity-90"
+        >
+          Select A Photo
+          <motion.div
+            animate={{
+              y: [0, -4, 0],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              repeatType: "loop"
+            }}
+          >
+            <ArrowUpCircleIcon className="w-5 h-5" />
+          </motion.div>
+        </motion.label>
+
+        {/* Image Previews */}
+        {image && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mt-4 w-full flex justify-center"
+          >
+            <img
+              src={image}
+              alt="Uploaded Preview"
+              className="max-w-full max-h-60 rounded-md shadow-lg"
+            />
           </motion.div>
         )}
 
-        {/* Status Messages */}
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+        
+          {/* Status Messages */ }
         {isLoading && (
-          <p className="text-blue-500 text-sm">
-            Processing… your image will be ready in a few seconds.
+          <p className="text-blue-500 mt-4">
+            Processing… your image will be ready in a few seconds. Perfect time for a quick coffee sip ☕
           </p>
         )}
-        {savingImage && <p className="text-blue-500 text-sm">Saving image...</p>}
-      </div>
+        {savingImage && (
+          <p className="text-blue-500 mt-4">Saving image...</p>
+        )}
 
-      {/* Right Section - Image Preview */}
-      <div className="flex flex-col max-h-[300px] h-auto px-10 w-full md:w-1/2 overflow-hidden">
-        {resultImage ? (
-          <div className="flex flex-col items-center h-full">
+
+        {resultImage && (
+          <div className="mt-4 w-full flex flex-col items-center">
+            <h3 className="text-white mb-2">AI Image Result</h3>
             <img
               src={resultImage}
-              alt="Generated background"
-              className="w-full h-full object-contain border border-[#2174FE]/10"
+              alt="Background Removed"
+              className="max-w-full max-h-60 rounded-md shadow-lg"
             />
             <button
               onClick={handleDownload}
-              className="mt-4 text-white cursor-pointer bg-gradient-to-r from-[#21ABFD] to-[#0055DE] px-4 py-2 rounded-full flex items-center gap-2"
+              className="px-4 py-2 mt-4 bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white rounded-full"
             >
               Download
-              <DownloadIcon className="w-4 h-4" />
             </button>
           </div>
-        ) : file ? (
-          <img
-            src={image}
-            alt="Uploaded watch"
-            className="w-full h-full object-contain rounded-md border border-[#2174FE]/10"
-          />
-        ) : (
-          <div className="flex items-center justify-center w-full h-full text-gray-400">
-            <img src="/watch2.png" alt="" className="w-full h-full rounded-xl object-cover" />
-          </div>
         )}
-      </div>
+      </motion.div>
+
+      {/* File Processing Section */}
+      {file && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center w-full max-w-md mx-auto mt-6"
+        >
+          {/* Terms Checkbox */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="flex items-center justify-center gap-3 border bg-[#0B1018] border-[#0093E840] rounded-xl px-4 py-3 w-full"
+          >
+            <input
+              type="checkbox"
+              id="terms-checkbox"
+              className="w-4 h-4 border-2 border-[#0093E8] rounded-md bg-transparent checked:bg-[#0093E8] checked:border-[#0093E8] focus:outline-none cursor-pointer"
+            />
+            <label htmlFor="terms-checkbox" className="text-sm sm:text-base text-gray-300 cursor-pointer">
+              I agree with the <Link href="/privacy" className="text-[#21ACFD] hover:underline">Terms & Conditions</Link>
+            </label>
+          </motion.div>
+
+          {/* Prompt Selection */}
+          <div className="flex justify-center flex-wrap gap-2 mt-6 w-full">
+            {prompts.map((prompt, index) => (
+              <motion.button
+                key={index}
+                onClick={() => handlePromptClick(prompt)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.1 * index }}
+                className={`px-4 py-2 rounded-md cursor-pointer ${selectedPrompt === prompt
+                    ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
+                    : "bg-gray-800 text-white"
+                  }`}
+              >
+                {prompt.name}
+              </motion.button>
+            ))}
+          </div>
+
+          {/* Custom Prompt Input */}
+          {selectedPrompt?.name === "Custom" && (
+            <div className="mt-4 w-full max-w-md">
+              <textarea
+                value={customPrompt}
+                onChange={handleCustomPromptChange}
+                className="w-full p-3 border border-[#0093E8] bg-[#0D0B13] text-white rounded-md focus:ring-2 focus:ring-[#21ACFD] placeholder-gray-500"
+                placeholder="Enter your custom prompt"
+                rows={3}
+              />
+            </div>
+          )}
+
+          {/* Apply Style Button */}
+          <motion.button
+            onClick={() => uploadToLightX(file)}
+            disabled={isLoading}
+            className="bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white px-12 py-4 rounded-full mt-6 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 15px rgba(33, 171, 253, 0.5)"
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {isLoading ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </>
+            ) : (
+              "Apply Style"
+            )}
+          </motion.button>
+        </motion.div>
+      )}
+
+
     </div>
   );
 };

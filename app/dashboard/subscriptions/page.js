@@ -43,7 +43,7 @@ const pricingCards = [
     },
     
     {
-        id: "price_1R6Ry7PFeWozK4w0k0QHAlj4",
+        id: "price_1R77iEPFeWozK4w0AOJ6HKE3",
         title: "Enterprise",
         description: "For the power user",
         price: "139.99",

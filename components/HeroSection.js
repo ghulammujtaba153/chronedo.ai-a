@@ -72,9 +72,11 @@ const HeroSection = () => {
 
   const handlePromptClick = (prompt) => {
     setSelectedPrompt(prompt);
+
     if (prompt.name === "Random") {
       const options = prompt.prompt.split(", ");
       const randomIndex = Math.floor(Math.random() * options.length);
+      
       setRandomPrompt(options[randomIndex]);
       setCustomPrompt("");
     } else if (prompt.name === "Custom Style") {
@@ -744,7 +746,7 @@ const HeroSection = () => {
                 className="text-sm sm:text-base text-gray-300 cursor-pointer"
                 whileHover={{ color: "#fff" }}
               >
-                I agree with the <Link href="/privacy" className="text-[#21ACFD] hover:underline">Privacy Policy</Link>
+                I agree with the <Link href="/privacy" className="text-[#21ACFD] hover:underline">Terms & Conditions</Link>
               </motion.label>
             </motion.div>
 

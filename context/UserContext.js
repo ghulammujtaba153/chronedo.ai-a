@@ -63,9 +63,11 @@ export const UserProvider = ({ children }) => {
         setUser(null);
         if (session){
             await signOut({ callbackUrl: '/signin' });
+        }else{
+            router.push('/signin');
         }
         
-        router.push('/signin');
+        // router.push('/signin');
     };
 
     return (
