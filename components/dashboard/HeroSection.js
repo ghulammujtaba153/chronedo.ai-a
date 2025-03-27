@@ -150,7 +150,7 @@ const HeroSection = () => {
       console.error('Conversion error:', err);
       setError('Failed to convert and optimize HEIC image');
       throw new Error('Failed to convert and optimize image');
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -188,6 +188,61 @@ const HeroSection = () => {
     setImage(URL.createObjectURL(selectedFile));
     setFile(selectedFile);
   };
+
+
+  
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (!file) {
+        setErrorMessage("Please upload an image.");
+        return;
+    }
+
+    try {
+        console.log("Processing as subscriber");
+        setIsLoading(true);
+
+        const userId = user?.userId || user._id;
+        const packageRes = await axios.get(`/api/packages/${userId}`);
+
+        if (!packageRes.data?.name) {
+            await savePackage({
+                UserId: userId,
+                name: "Free",
+                price: "0",
+                images: 25,
+            });
+            setImageCount(25);
+        }
+
+        const availableCount = packageRes.data.images;
+        setImageCount(availableCount);
+
+        if (availableCount <= 0) {
+            setErrorMessage("You've reached your image limit.");
+            return;
+        }
+
+        if (file.name.toLowerCase().endsWith('.heic')) {
+            const jpgUrl = await convertHeicToJpg(file);
+            setImage(URL.createObjectURL(jpgUrl));
+            setFile(jpgUrl);
+            return;
+        }
+
+        setImage(URL.createObjectURL(file));
+        setFile(file);
+
+    } catch (error) {
+        console.error("File processing error:", error);
+        setErrorMessage(error.message);
+        setImageCount(imageCount + 1); // Revert count if update fails
+    } finally {
+        setIsLoading(false);
+    }
+};
+
 
 
   const uploadToLightX = async (file) => {
@@ -334,15 +389,15 @@ const HeroSection = () => {
 
         if (data.status === "active") {
           setResultImage(data.output); // Set the result image URL
-          
-            const updateRes = await axios.post("/api/packages/update-count", {
-              userId: user.userId || user._id,
-              count: -1,
-            });
-            console.log("update the user count",updateRes.data)
-            setImageCount(imageCount - 1);
 
-            handleDBImage(data.output);
+          const updateRes = await axios.post("/api/packages/update-count", {
+            userId: user.userId || user._id,
+            count: -1,
+          });
+          console.log("update the user count", updateRes.data)
+          setImageCount(imageCount - 1);
+
+          handleDBImage(data.output);
 
           return;
         } else if (data.status === "failed") {
@@ -449,7 +504,7 @@ const HeroSection = () => {
             onClose={() => setError("")}
             title="Error"
             message={error}
-            type="error"
+            type="error1"
           />
         )}
 
@@ -497,8 +552,8 @@ const HeroSection = () => {
           </motion.div>
         )}
 
-        
-          {/* Status Messages */ }
+
+        {/* Status Messages */}
         {isLoading && (
           <p className="text-blue-500 mt-4">
             Processing… your image will be ready in a few seconds. Perfect time for a quick coffee sip ☕
@@ -564,8 +619,8 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.1 * index }}
                 className={`px-4 py-2 rounded-md cursor-pointer ${selectedPrompt === prompt
-                    ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
-                    : "bg-gray-800 text-white"
+                  ? "bg-gradient-to-r from-[#21ABFD] to-[#0055DE] text-white"
+                  : "bg-gray-800 text-white"
                   }`}
               >
                 {prompt.name}

@@ -320,6 +320,13 @@ const HeroSection = () => {
           setErrorMessage("You've reached your image limit.");
           return; // Exit early to avoid processing
         }
+        if (file.name.toLowerCase().endsWith('.heic')) {
+          const jpgUrl = await convertHeicToJpg(file);
+          setImage(URL.createObjectURL(jpgUrl));
+          setFile(jpgUrl);
+          // setErrorMessage('uploaded a HEIC/HEIF file');
+          return;
+        }
         setImage(URL.createObjectURL(file));
         setFile(file);
 
