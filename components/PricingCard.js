@@ -86,14 +86,14 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
                     </li>
                 ))}
             </ul>
-            <button 
+            {card.title !== "Free" && <button 
                 onClick={handleCheckout}
                 disabled={loading} 
                 className={`text-white text-lg font-semibold my-4 cursor-pointer border border-gray-700 bg-[#217DFE08]
                 backdrop-blur-[70px] rounded-lg items-center justify-center flex gap-2 p-2 transition-all hover:bg-gradient-to-r hover:from-[#21ACFD] hover:to-[#2174FE] hover:border-transparent disabled:cursor-not-allowed`}
             >
                  Buy now
-            </button>
+            </button>}
 
             {/* {currentPlan && <button 
                 // onClick={handleCheckout} 
