@@ -113,6 +113,8 @@ const HeroSection = () => {
       let quality = 0.9;
       let attempts = 0;
 
+      setIsLoading(true);
+
       while (blob.size > maxSizeKB * 1024 && attempts < 5) {
         quality -= 0.15; // Reduce quality in steps
         result = await heic2any({
@@ -141,10 +143,15 @@ const HeroSection = () => {
         });
       }
 
+      setIsLoading(false);
+
       return blob;
     } catch (err) {
       console.error('Conversion error:', err);
+      setError('Failed to convert and optimize HEIC image');
       throw new Error('Failed to convert and optimize image');
+    }finally{
+      setIsLoading(false);
     }
   };
 

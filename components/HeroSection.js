@@ -116,6 +116,7 @@ const HeroSection = () => {
 
   const convertHeicToJpg = async (file, maxSizeKB = 1024) => { // Default 1MB max
     try {
+      setIsLoading(true);
       const heic2any = (await import('heic2any')).default;
 
       // First conversion (full quality)
@@ -161,7 +162,10 @@ const HeroSection = () => {
       return blob;
     } catch (err) {
       console.error('Conversion error:', err);
+      setErrorMessage('Failed to convert and optimize Heic image')
       throw new Error('Failed to convert and optimize image');
+    } finally {
+      setIsLoading(false);
     }
   };
 
