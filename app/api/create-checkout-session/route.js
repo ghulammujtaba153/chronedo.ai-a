@@ -68,6 +68,8 @@ export async function POST(request) {
       success_url: `${request.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.headers.get("origin")}/cancel`,
       metadata,  // ✅ Correctly passed metadata
+
+      billing_address_collection: 'auto', // Collect billing address
     });
 
     return new Response(JSON.stringify({ id: session.id }), {
