@@ -1,4 +1,4 @@
-import { savePackage } from "@/lib/savePackage";
+import { savePackage, sendEmail } from "@/lib/savePackage";
 import { Readable } from "stream";
 import Stripe from "stripe";
 
@@ -45,6 +45,12 @@ export async function POST(req) {
                 price: packageDetails.price,
                 images: JSON.parse(packageDetails.images), // ✅ Correctly parsing images data
             });
+
+            await sendEmail({
+                email: packageDetails.customer_email,
+                name: packageDetails.name,
+                price: packageDetails.price,
+            })
         }
     }
 

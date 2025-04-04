@@ -45,7 +45,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request) {
   try {
-    const { priceId, packageDetails } = await request.json();  // ✅ Extract packageDetails here
+    const { priceId, customer_email, packageDetails } = await request.json();  // ✅ Extract packageDetails here
 
     // Ensure metadata values are strings
     const metadata = {
@@ -53,6 +53,7 @@ export async function POST(request) {
       name: packageDetails.name,
       price: packageDetails.price.toString(),
       images: JSON.stringify(packageDetails.images),  // ✅ Metadata values must be strings
+      customer_email: customer_email,
     };
 
     // Create a Stripe Checkout Session
