@@ -10,7 +10,7 @@ const PricingCard = ({ card, active, onClick, currentPlan=false }) => {
     const { savePackage } = usePackage();
     const {user} = useUser();
     const [loading, setLoading]=useState(false);
-    console.log("price card user", user)
+    // console.log("price card user", user)
     
     
     const handleCheckout = async () => {

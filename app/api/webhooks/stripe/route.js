@@ -46,11 +46,11 @@ export async function POST(req) {
                 images: JSON.parse(packageDetails.images), // ✅ Correctly parsing images data
             });
 
-            await sendEmail({
-                email: packageDetails.customer_email,
-                name: packageDetails.name,
-                price: packageDetails.price,
-            })
+            await sendEmail(
+                session.customer_details.email, // Use the email from checkout
+                session.metadata.name,
+                session.metadata.price
+              );
         }
     }
 

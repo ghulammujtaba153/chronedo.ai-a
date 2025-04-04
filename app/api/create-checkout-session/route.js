@@ -53,7 +53,6 @@ export async function POST(request) {
       name: packageDetails.name,
       price: packageDetails.price.toString(),
       images: JSON.stringify(packageDetails.images),  // ✅ Metadata values must be strings
-      customer_email: customer_email,
     };
 
     // Create a Stripe Checkout Session
@@ -71,6 +70,7 @@ export async function POST(request) {
       metadata,  // ✅ Correctly passed metadata
 
       billing_address_collection: 'auto', // Collect billing address
+      customer_email,
     });
 
     return new Response(JSON.stringify({ id: session.id }), {
