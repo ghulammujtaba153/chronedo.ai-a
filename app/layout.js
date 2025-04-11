@@ -8,6 +8,7 @@ import Providers from "./Providers";
 import { ImageProvider } from "@/context/ImageContext";
 import { PackageProvider } from "@/context/PackageContext";
 import { ImageCountProvider } from "@/context/ImageCountContext";
+import Script from "next/script"; // ✅ Make sure this is imported
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +28,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-
-<head>
-        
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
+      >
+        {/* ✅ Google Analytics Scripts here (not inside <head>) */}
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=G-FCK76CXTKB`}
@@ -48,21 +50,14 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
-      </head>
-
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
-      >
 
         <Providers>
-        <UserProvider>
-          <ImageCountProvider>
-            <PackageProvider>
-              <ImageProvider>
-                {children}
-              </ImageProvider>
-            </PackageProvider>
-          </ImageCountProvider>
+          <UserProvider>
+            <ImageCountProvider>
+              <PackageProvider>
+                <ImageProvider>{children}</ImageProvider>
+              </PackageProvider>
+            </ImageCountProvider>
           </UserProvider>
         </Providers>
       </body>
